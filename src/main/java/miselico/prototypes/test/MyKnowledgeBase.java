@@ -38,7 +38,11 @@ public class MyKnowledgeBase {
 		AddChangeSet jyvProp = AddChangeSet.builder().andAdd(MyKnowledgeBase.hasName, PredefinedKB.get("Jyvaskyla").id).build();
 		Prototype Jyvaskyla = Prototype.create(ID.of("http://example.fi/#Jyvaskyla"), Galway, removeName, jyvProp);
 
-		Builder b = new KnowledgeBase.Builder();
+		// The predefined KB is all there is as an external source
+		// in more advanced set-ups, there could be real external sources as
+		// well. The external source is used to check consistency and compute
+		// fix-points.
+		Builder b = new KnowledgeBase.Builder(PredefinedKB.kb);
 		b.add(City);
 		b.add(Michael);
 		b.add(Galway);

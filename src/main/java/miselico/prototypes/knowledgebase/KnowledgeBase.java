@@ -23,9 +23,18 @@ import com.google.common.collect.ImmutableMap;
 public class KnowledgeBase implements IKnowledgeBase {
 
 	public final ImmutableMap<ID, Prototype> KB;
+	private IKnowledgeBase external;
 
-	public KnowledgeBase(ImmutableMap<ID, Prototype> kB) {
+	/**
+	 * 
+	 * @param kB
+	 *            the data in this knowledge base
+	 * @param external
+	 *            data defined externally
+	 */
+	public KnowledgeBase(ImmutableMap<ID, Prototype> kB, IKnowledgeBase external) {
 		this.KB = kB;
+		this.external = external;
 		this.checkConsistency();
 	}
 
@@ -70,7 +79,7 @@ public class KnowledgeBase implements IKnowledgeBase {
 		if (prot != null) {
 			return Optional.of(prot);
 		}
-		return PredefinedKB.kb.isDefined(id);
+		return this.external.isDefined(id);
 	}
 
 	public Prototype get(ID id) {
@@ -83,7 +92,7 @@ public class KnowledgeBase implements IKnowledgeBase {
 	}
 
 	public KnowledgeBase computeFixPoint() {
-		Builder b = new Builder();
+		Builder b = new Builder(this.external);
 		// this is optimized by re-using paths in the derivation.
 		HashMap<ID, AddChangeSet> done = new HashMap<ID, AddChangeSet>();
 		// ground with P_0
@@ -118,11 +127,12 @@ public class KnowledgeBase implements IKnowledgeBase {
 		return b.build();
 	}
 
-	public static KnowledgeBase empty() {
-		return KnowledgeBase.EMPTY;
+	public static KnowledgeBase empty(IKnowledgeBase external) {
+		return new KnowledgeBase(ImmutableMap.<ID, Prototype> of(), external);
 	}
 
-	private static final KnowledgeBase EMPTY = new KnowledgeBase(ImmutableMap.<ID, Prototype> of());
+	// private static final KnowledgeBase EMPTY = new
+	// KnowledgeBase(ImmutableMap.<ID, Prototype> of());
 
 	/**
 	 * A builder to create a knowledge base. This is needed because during
@@ -137,8 +147,8 @@ public class KnowledgeBase implements IKnowledgeBase {
 		private List<Prototype> adds = new ArrayList<Prototype>();
 		private List<Prototype> removals = new ArrayList<Prototype>();
 
-		public Builder() {
-			this(KnowledgeBase.empty());
+		public Builder(IKnowledgeBase external) {
+			this(KnowledgeBase.empty(external));
 		}
 
 		public Builder(KnowledgeBase base) {
@@ -165,7 +175,7 @@ public class KnowledgeBase implements IKnowledgeBase {
 			for (Prototype prototype : this.removals) {
 				prototypes.remove(prototype.id);
 			}
-			return new KnowledgeBase(ImmutableMap.copyOf(prototypes));
+			return new KnowledgeBase(ImmutableMap.copyOf(prototypes), this.base.external);
 		}
 	}
 

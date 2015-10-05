@@ -9,12 +9,18 @@ import miselico.prototypes.knowledgebase.Property;
 import miselico.prototypes.knowledgebase.Prototype;
 import miselico.prototypes.knowledgebase.RemoveChangeSet;
 
+import com.google.common.base.Optional;
+
 public class MyKnowledgeBase {
 
 	private static final Property hasName = Property.of("http://example.com/#hasName");
 	private static final Property livesIn = Property.of("http://example.com/#livesIn");
 
 	public static void main(String[] args) {
+		MyKnowledgeBase.getSomebase();
+	}
+
+	public static KnowledgeBase getSomebase() {
 
 		// City: no properties
 		Prototype City = Prototype.create(ID.of("http://example.com/#City"), Prototype.P_0, RemoveChangeSet.empty(), AddChangeSet.empty());
@@ -35,7 +41,7 @@ public class MyKnowledgeBase {
 
 		// define Jyvaskyla as being Galway, but redefine the name
 		RemoveChangeSet removeName = RemoveChangeSet.builder().andRemove(MyKnowledgeBase.hasName, PredefinedKB.get("Galway").id).build();
-		AddChangeSet jyvProp = AddChangeSet.builder().andAdd(MyKnowledgeBase.hasName, PredefinedKB.get("Jyvaskyla").id).build();
+		AddChangeSet jyvProp = AddChangeSet.builder().andAdd(MyKnowledgeBase.hasName, PredefinedKB.get("Jyväskylä").id).build();
 		Prototype Jyvaskyla = Prototype.create(ID.of("http://example.fi/#Jyvaskyla"), Galway, removeName, jyvProp);
 
 		// The predefined KB is all there is as an external source
@@ -76,13 +82,13 @@ public class MyKnowledgeBase {
 
 		// building the KB at this point will fail: Aachen is not defined
 		// yet
-		try {
-			b.build();
-			System.err.println("Expected error NOT thrown");
-		} catch (Error e) {
-			System.out.println("Expected error:");
-			e.printStackTrace();
-		}
+		// try {
+		// b.build();
+		// System.err.println("Expected error NOT thrown");
+		// } catch (Error e) {
+		// System.out.println("Expected error:");
+		// e.printStackTrace();
+		// }
 
 		// define Aachen, just one property added to City
 		AddChangeSet aachenProp = AddChangeSet.builder().andAdd(MyKnowledgeBase.hasName, PredefinedKB.get("Aachen").id).build();
@@ -93,6 +99,18 @@ public class MyKnowledgeBase {
 		System.out.println(kb);
 
 		System.out.println("Computing fixpoint");
-		System.out.println(kb.computeFixPoint());
+		KnowledgeBase fixPoint = kb.computeFixPoint();
+		System.out.println(fixPoint);
+
+		Optional<Prototype> answer = kb.isDefined(ID.of("http://example.fi/#Jyvaskyla"));
+		Optional<Prototype> fpAnswer = fixPoint.isDefined(ID.of("http://example.fi/#Jyvaskyla"));
+		if (answer.isPresent() && fpAnswer.isPresent()) {
+			System.out.println("JKL in KB:" + answer.get());
+			System.out.println("JKL in fp:" + fpAnswer.get());
+		} else {
+			throw new Error("Jyvaskyla not found.");
+		}
+		return kb;
+
 	}
 }

@@ -12,7 +12,7 @@ import com.google.common.base.Splitter;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.primitives.Ints;
+import com.google.common.primitives.Longs;
 
 /**
  * All predefined values, which are implicitly in all knowledge bases. This
@@ -33,11 +33,11 @@ public class PredefinedKB implements IKnowledgeBase {
 		if (Prototype.P_0.id.equals(id)) {
 			return Optional.of(Prototype.P_0);
 		}
-		Optional<Prototype> asInt = INTEGERS.kb.isDefined(id);
+		Optional<Prototype> asInt = integers.kb.isDefined(id);
 		if (asInt.isPresent()) {
 			return asInt;
 		}
-		Optional<Prototype> asString = STRINGS.kb.isDefined(id);
+		Optional<Prototype> asString = strings.kb.isDefined(id);
 		if (asString.isPresent()) {
 			return asString;
 		}
@@ -49,50 +49,65 @@ public class PredefinedKB implements IKnowledgeBase {
 	}
 
 	public static Prototype get(String value) {
-		return PredefinedKB.STRINGS.kb.define(value);
+		return strings.kb.define(value);
 	}
 
-	public static Prototype get(int i) {
-		return PredefinedKB.INTEGERS.kb.define(i);
+	public static Prototype get(long i) {
+		return integers.kb.define(i);
 	}
 
-	public static class INTEGERS implements IKnowledgeBase {
-		private static final PredefinedKBPart<Integer> kb = new PredefinedKBPart<Integer>() {
+	public static final integers INTEGERS = new integers();
+
+	public static class integers implements IKnowledgeBase {
+		private integers() {
+		}
+
+		private static final PredefinedKBPart<Long> kb = new PredefinedKBPart<Long>() {
 
 			@Override
 			protected String getBaseString() {
-				return "http://example.com/integer/";
+				return "value:integer#";
 			}
 
 			@Override
-			protected String toURLFragment(Integer val) {
-				return Integer.toString(val);
+			protected String toURLFragment(Long val) {
+				return Long.toString(val);
 			}
 
 			@Override
-			protected Optional<Integer> fromURLFragment(String fragment) {
-				Integer str = Ints.tryParse(fragment);
+			protected Optional<Long> fromURLFragment(String fragment) {
+				Long str = Longs.tryParse(fragment);
 				return Optional.fromNullable(str);
 			}
 
 		};
 
 		public Optional<Prototype> isDefined(ID id) {
-			return INTEGERS.kb.isDefined(id);
+			return integers.kb.isDefined(id);
 		}
 
 		public Prototype get(ID id) {
-			return INTEGERS.kb.get(id);
+			return integers.kb.get(id);
+		}
+
+		public Optional<Long> convertBack(ID id) {
+			return integers.kb.convertBack(id);
 		}
 
 	};
 
-	public static class STRINGS implements IKnowledgeBase {
+	public static final strings STRINGS = new strings();
+
+	public static class strings implements IKnowledgeBase {
+		private strings() {
+			// TODO Auto-generated constructor stub
+		}
+
 		private static final PredefinedKBPart<String> kb = new PredefinedKBPart<String>() {
 
 			@Override
 			protected String getBaseString() {
-				return "http://example.com/string/";
+				return "value:string#";
 			}
 
 			@Override
@@ -116,11 +131,15 @@ public class PredefinedKB implements IKnowledgeBase {
 		};
 
 		public Optional<Prototype> isDefined(ID id) {
-			return STRINGS.kb.isDefined(id);
+			return strings.kb.isDefined(id);
 		}
 
 		public Prototype get(ID id) {
-			return STRINGS.kb.get(id);
+			return strings.kb.get(id);
+		}
+
+		public Optional<String> convertBack(ID id) {
+			return strings.kb.convertBack(id);
 		}
 
 	};
@@ -130,7 +149,8 @@ public class PredefinedKB implements IKnowledgeBase {
 		protected abstract String getBaseString();
 
 		private final String baseString = this.getBaseString();
-		private final URI base = URI.create(this.baseString);
+
+		// private final URI base = URI.create(this.baseString);
 
 		protected abstract String toURLFragment(E val);
 
@@ -141,7 +161,7 @@ public class PredefinedKB implements IKnowledgeBase {
 			@Override
 			public Prototype load(E value) throws Exception {
 				String fragment = PredefinedKBPart.this.toURLFragment(value);
-				return Prototype.create(new ID(PredefinedKBPart.this.base.resolve(fragment)), Prototype.P_0, RemoveChangeSet.empty(), AddChangeSet.empty());
+				return Prototype.create(new ID(new URI(PredefinedKBPart.this.baseString + fragment)), Prototype.P_0, RemoveChangeSet.empty(), AddChangeSet.empty());
 			}
 		});
 
@@ -157,8 +177,16 @@ public class PredefinedKB implements IKnowledgeBase {
 		}
 
 		public Optional<Prototype> isDefined(ID id) {
+			Optional<E> parsedVal = this.convertBack(id);
+			if (!parsedVal.isPresent()) {
+				return Optional.absent();
+			}
+			return Optional.of(this.define(parsedVal.get()));
+		}
+
+		public Optional<E> convertBack(ID id) {
 			String val = id.value.toString();
-			if (!val.startsWith(this.base.toString())) {
+			if (!val.startsWith(this.baseString)) {
 				return Optional.absent();
 			}
 			List<String> parts = this.s.splitToList(val);
@@ -169,10 +197,10 @@ public class PredefinedKB implements IKnowledgeBase {
 			Optional<E> parsedVal = this.fromURLFragment(parts.get(0));
 			if (!parsedVal.isPresent()) {
 				System.err.println("prefix " + this.baseString + " used, but incorect URI to be of this type, likely an error : " + id);
-				return Optional.absent();
 			}
-			return Optional.of(this.define(parsedVal.get()));
+			return parsedVal;
 		}
+
 	}
 
 	// public static final ImmutableList<Prototype> integers;

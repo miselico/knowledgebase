@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableMap;
 
 /**
@@ -84,6 +85,10 @@ public class KnowledgeBase implements IKnowledgeBase {
 
 	public Prototype get(ID id) {
 		return this.isDefined(id).get();
+	}
+
+	public ImmutableCollection<Prototype> prototypes() {
+		return this.KB.values();
 	}
 
 	@Override

@@ -13,6 +13,7 @@ public class ID {
 
 	public ID(URI value) {
 		Preconditions.checkNotNull(value);
+		Preconditions.checkArgument(value.isAbsolute(), "Only absolute URIs are valid IDs");
 		this.value = value;
 	}
 

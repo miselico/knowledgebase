@@ -13,6 +13,7 @@ public class Property {
 
 	public Property(URI value) {
 		Preconditions.checkNotNull(value);
+		Preconditions.checkArgument(value.isAbsolute(), "Only absolute URIs are valid properties");
 		this.value = value;
 	}
 

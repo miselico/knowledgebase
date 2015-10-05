@@ -35,7 +35,7 @@ public class Prototype {
 	private static final Map<ID, Prototype> allProtoTypes;
 
 	static {
-		System.out.println("Currently all protoypes created are checked for uniqueness, this is a performance burden but helps ensure correctness. PredefinedKB Prototypes are cached, so could show up unregularly.");
+		System.err.println("Currently all protoypes created are checked for uniqueness, this is a performance burden but helps ensure correctness. PredefinedKB Prototypes are cached, so could show up unregularly.");
 		allProtoTypes = new HashMap<ID, Prototype>();
 	}
 
@@ -49,7 +49,7 @@ public class Prototype {
 	public static final Prototype P_0;
 
 	static {
-		ID id = new ID(URI.create("http://proto#P_0"));
+		ID id = new ID(URI.create("proto:P_0"));
 		ID parent = null;
 		RemoveChangeSet remove = RemoveChangeSet.empty();
 		AddChangeSet add = AddChangeSet.empty();
@@ -59,6 +59,16 @@ public class Prototype {
 	@Override
 	public String toString() {
 		return "Prototype [id=" + this.id + ", parent=" + this.parent + ", remove=" + this.remove + ", add=" + this.add + "]";
+	}
+
+	/**
+	 * A prototype is fixpoint if it derives from P_O and has an empty remove
+	 * set
+	 * 
+	 * @return
+	 */
+	public boolean isFixPoint() {
+		return (this.parent.equals(Prototype.P_0.id) && this.remove.isEmpty());
 	}
 
 }

@@ -36,6 +36,11 @@ public class RemoveChangeSet extends ChangeSet {
 		}
 	}
 
+	@Override
+	public ImmutableSet<Property> affectsProperties() {
+		return ImmutableSet.<Property> builder().addAll(super.affectsProperties()).addAll(this.removeAll).build();
+	}
+
 	public static class Builder {
 		SetMultimap<Property, ID> rm = HashMultimap.create();
 		Set<Property> rmAll = new HashSet<Property>();
@@ -71,5 +76,13 @@ public class RemoveChangeSet extends ChangeSet {
 	}
 
 	private static RemoveChangeSet EMPTY = new RemoveChangeSet(ImmutableSetMultimap.<Property, ID> of(), ImmutableSet.<Property> of());
+
+	@Override
+	public boolean isEmpty() {
+		if (this == RemoveChangeSet.EMPTY) {
+			return true;
+		}
+		return this.removeAll.isEmpty() && super.isEmpty();
+	}
 
 }

@@ -1,5 +1,6 @@
 package miselico.prototypes.knowledgebase;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -24,7 +25,30 @@ public class RemoveChangeSet extends ChangeSet {
 
 	@Override
 	public String toString() {
-		return "RemoveChangeSet [removeAll=" + this.removeAll + ", remove=" + super.toString() + "]";
+		StringBuilder b = new StringBuilder();
+		b.append('{');
+		// http://stackoverflow.com/a/3395345
+		String prefix = "";
+		for (Property property : this.removeAll) {
+			b.append(prefix);
+			prefix = ",";
+			b.append(property.toString());
+			b.append("=*");
+		}
+		if (!this.removeAll.isEmpty() && !super.isEmpty()) {
+			b.append(",");
+		}
+		prefix = "";
+		for (Entry<Property, Collection<ID>> change : super.entrySet()) {
+			b.append(prefix);
+			prefix = ",";
+			b.append(change.getKey().toString());
+			b.append("=");
+			b.append(change.getValue().toString());
+		}
+		b.append('}');
+
+		return b.toString();
 	}
 
 	public void removeFrom(MutableChangeSet mcs) {

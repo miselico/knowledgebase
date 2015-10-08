@@ -5,7 +5,8 @@ import java.net.URI;
 import com.google.common.base.Preconditions;
 
 public class Property {
-	private final URI value;
+	// kept as a string, since this is way faster to compare as a URI object.
+	private final String value;
 
 	public static Property of(String value) {
 		return new Property(URI.create(value));
@@ -14,19 +15,16 @@ public class Property {
 	public Property(URI value) {
 		Preconditions.checkNotNull(value);
 		Preconditions.checkArgument(value.isAbsolute(), "Only absolute URIs are valid properties");
-		this.value = value;
+		this.value = value.toString();
 	}
 
 	public URI getValue() {
-		return this.value;
+		return URI.create(this.value);
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = (prime * result) + ((this.value == null) ? 0 : this.value.hashCode());
-		return result;
+		return this.value.hashCode();
 	}
 
 	@Override
@@ -41,19 +39,12 @@ public class Property {
 			return false;
 		}
 		Property other = (Property) obj;
-		if (this.value == null) {
-			if (other.value != null) {
-				return false;
-			}
-		} else if (!this.value.equals(other.value)) {
-			return false;
-		}
-		return true;
+		return this.value.equals(other.value);
 	}
 
 	@Override
 	public String toString() {
-		return "Property [value=" + this.value + "]";
+		return this.value.toString();
 	}
 
 }

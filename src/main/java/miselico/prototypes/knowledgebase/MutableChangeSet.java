@@ -3,7 +3,7 @@ package miselico.prototypes.knowledgebase;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-public class MutableChangeSet {
+class MutableChangeSet {
 
 	public final Multimap<Property, ID> changes;
 

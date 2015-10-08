@@ -8,7 +8,7 @@
 	<packaging>jar</packaging>
 
 	<name>knowledgebase</name>
-	<url>http://maven.apache.org</url>
+	<url>http://users.jyu.fi/~miselico/research/</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -26,14 +26,14 @@
 			<artifactId>guava</artifactId>
 			<version>18.0</version>
 		</dependency>
-
-
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-math3</artifactId>
+			<version>3.5</version>
+		</dependency>
 	</dependencies>
 
 	<build>
-		<!-- This makes sure that your project will be compatible with Java 7, 
-			which is needed for Jetty If you get trouble with running things in Eclipse, 
-			try to right click on your project> Maven>Update Project -->
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

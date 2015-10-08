@@ -29,6 +29,7 @@ public class PredefinedKB implements IKnowledgeBase {
 	private PredefinedKB() {
 	}
 
+	@Override
 	public Optional<Prototype> isDefined(ID id) {
 		if (Prototype.P_0.id.equals(id)) {
 			return Optional.of(Prototype.P_0);
@@ -44,6 +45,7 @@ public class PredefinedKB implements IKnowledgeBase {
 		return Optional.absent();
 	}
 
+	@Override
 	public Prototype get(ID id) {
 		return this.isDefined(id).get();
 	}
@@ -82,10 +84,12 @@ public class PredefinedKB implements IKnowledgeBase {
 
 		};
 
+		@Override
 		public Optional<Prototype> isDefined(ID id) {
 			return integers.kb.isDefined(id);
 		}
 
+		@Override
 		public Prototype get(ID id) {
 			return integers.kb.get(id);
 		}
@@ -130,10 +134,12 @@ public class PredefinedKB implements IKnowledgeBase {
 			}
 		};
 
+		@Override
 		public Optional<Prototype> isDefined(ID id) {
 			return strings.kb.isDefined(id);
 		}
 
+		@Override
 		public Prototype get(ID id) {
 			return strings.kb.get(id);
 		}
@@ -143,6 +149,8 @@ public class PredefinedKB implements IKnowledgeBase {
 		}
 
 	};
+
+	private static final PrototypeDefinition def = PrototypeDefinition.create(Prototype.P_0, RemoveChangeSet.empty(), AddChangeSet.empty());
 
 	private abstract static class PredefinedKBPart<E> {
 
@@ -161,7 +169,8 @@ public class PredefinedKB implements IKnowledgeBase {
 			@Override
 			public Prototype load(E value) throws Exception {
 				String fragment = PredefinedKBPart.this.toURLFragment(value);
-				return Prototype.create(new ID(new URI(PredefinedKBPart.this.baseString + fragment)), Prototype.P_0, RemoveChangeSet.empty(), AddChangeSet.empty());
+				ID id = new ID(new URI(PredefinedKBPart.this.baseString + fragment));
+				return new Prototype(id, PredefinedKB.def);
 			}
 		});
 
@@ -185,7 +194,7 @@ public class PredefinedKB implements IKnowledgeBase {
 		}
 
 		public Optional<E> convertBack(ID id) {
-			String val = id.value.toString();
+			String val = id.toString();
 			if (!val.startsWith(this.baseString)) {
 				return Optional.absent();
 			}

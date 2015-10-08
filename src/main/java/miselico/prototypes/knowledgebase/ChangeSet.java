@@ -45,7 +45,7 @@ public class ChangeSet {
 
 	@Override
 	public String toString() {
-		return "ChangeSet [changes=" + this.changes + "]";
+		return this.changes.toString();
 	}
 
 	public boolean isEmpty() {

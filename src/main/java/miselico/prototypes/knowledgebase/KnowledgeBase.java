@@ -42,6 +42,9 @@ public class KnowledgeBase implements IKnowledgeBase {
 	// Checks whether ALL IDs mentioned are reachable within the KB or in the
 	// Predefined KB AND wheter all prototypes are recursively deriving from P_0
 	private void checkConsistency() {
+		if (this.KB.containsKey(Prototype.P_0.id)) {
+			throw new Error("A KB definition cannot contain P_0");
+		}
 		for (PrototypeDefinition proto : this.KB.values()) {
 			// Check the parent and added things. A recursive check is not
 			// necessary: They will be checked themselves in later/before in the
@@ -65,14 +68,19 @@ public class KnowledgeBase implements IKnowledgeBase {
 
 		// Check derivation is DAG
 
-		// This implementation could possibly be improved by not re-traversing
+		// It has been tried to improve by not re-traversing
 		// paths.
-		// This might also be slower due to look-up times, mainly for short
-		// chains.
+		// This is slower due to look-up times for short
+		// chains. Long chains get a slight gain.
+
+		// HashSet<ID> checked = new HashSet<>();
 		for (Entry<ID, PrototypeDefinition> proto : this.KB.entrySet()) {
+			ID currentID = proto.getKey();
+			// if (checked.contains(currentID)) {
+			// continue;
+			// }
 			Set<ID> currentBranch = new HashSet<ID>();
 			PrototypeDefinition currentDef = proto.getValue();
-			ID currentID = proto.getKey();
 			while (!currentDef.parent.equals(Prototype.P_0.id)) {
 				if (!currentBranch.add(currentID)) {
 					throw new Error("Cycle detected in inheritance tree for " + currentDef);
@@ -80,14 +88,20 @@ public class KnowledgeBase implements IKnowledgeBase {
 				currentID = currentDef.parent;
 				currentDef = this.KB.get(currentID);
 			}
+			// checked.addAll(currentBranch);
 		}
 	}
+
+	private static final Optional<Prototype> OptP_0 = Optional.of(Prototype.P_0);
 
 	@Override
 	public Optional<Prototype> isDefined(ID id) {
 		PrototypeDefinition prot = this.KB.get(id);
 		if (prot != null) {
 			return Optional.of(new Prototype(id, prot));
+		}
+		if (id.equals(Prototype.P_0.id)) {
+			return KnowledgeBase.OptP_0;
 		}
 		return this.external.isDefined(id);
 	}
@@ -117,32 +131,36 @@ public class KnowledgeBase implements IKnowledgeBase {
 		// ground with P_0
 		done.put(Prototype.P_0.id, AddChangeSet.empty());
 		for (Entry<ID, PrototypeDefinition> proto : this.KB.entrySet()) {
-
-			// find the fixpoint for the add set
-			Deque<Prototype> branch = new LinkedList<Prototype>();
-			Prototype current = new Prototype(proto.getKey(), proto.getValue());
-			// TODO we might want to stop at the 'boundaries' of this knowledge
-			// base. ie. externally defined things.
-			while (!(done.containsKey(current.id))) {
-				branch.addFirst(current);
-				current = this.get(current.def.parent);
-			}
-			// invariant: we now pop the things form the stack.
-			// We know that at each stage the fixpoint of the parent has been
-			// calculated already.
-			while (!branch.isEmpty()) {
-				current = branch.removeFirst();
-				// the fix point is whatever the parent fix point has, minus
-				// what gets removed, plus what gets added
-				// take what the parent had and copy.
-				MutableChangeSet fpParent = done.get(current.def.parent).mutableCopy();
-				current.def.remove.removeFrom(fpParent);
-				current.def.add.addTo(fpParent);
-				AddChangeSet addCS = AddChangeSet.fromMutable(fpParent);
-				done.put(current.id, addCS);
-				PrototypeDefinition def = PrototypeDefinition.create(Prototype.P_0, RemoveChangeSet.empty(), addCS);
-				// FIXME we just take the same ID. This seems fine, but is it?
-				b.add(new Prototype(current.id, def));
+			if (!done.containsKey(proto.getKey())) {
+				// find the fixpoint for the add set
+				Deque<Prototype> branch = new LinkedList<Prototype>();
+				Prototype current = new Prototype(proto.getKey(), proto.getValue());
+				// TODO we might want to stop at the 'boundaries' of this
+				// knowledge
+				// base. ie. externally defined things.
+				while (!(done.containsKey(current.id))) {
+					branch.addFirst(current);
+					current = this.get(current.def.parent);
+				}
+				// invariant: we now pop the things form the stack.
+				// We know that at each stage the fixpoint of the parent has
+				// been
+				// calculated already.
+				while (!branch.isEmpty()) {
+					current = branch.removeFirst();
+					// the fix point is whatever the parent fix point has, minus
+					// what gets removed, plus what gets added
+					// take what the parent had and copy.
+					MutableChangeSet fpParent = done.get(current.def.parent).mutableCopy();
+					current.def.remove.removeFrom(fpParent);
+					current.def.add.addTo(fpParent);
+					AddChangeSet addCS = AddChangeSet.fromMutable(fpParent);
+					done.put(current.id, addCS);
+					PrototypeDefinition def = PrototypeDefinition.create(Prototype.P_0, RemoveChangeSet.empty(), addCS);
+					// FIXME we just take the same ID. This seems fine, but is
+					// it?
+					b.add(new Prototype(current.id, def));
+				}
 			}
 		}
 		return b.build();
@@ -198,6 +216,15 @@ public class KnowledgeBase implements IKnowledgeBase {
 			}
 			return new KnowledgeBase(ImmutableMap.copyOf(prototypes), this.base.external);
 		}
+	}
+
+	/**
+	 * Amount of prototypes internal to this KB
+	 * 
+	 * @return
+	 */
+	public int size() {
+		return this.KB.size();
 	}
 
 }

@@ -54,7 +54,12 @@ public class KnowledgeBase implements IKnowledgeBase {
 				throw new Error("Parent of " + proto + " is not defined in the knowledge base.");
 			}
 			for (Entry<Property, ID> addition : proto.add.entries()) {
-				if (!this.isDefined(addition.getValue()).isPresent()) {
+				ID v = addition.getValue();
+				if (v.equals(Prototype.P_0.id)) {
+					throw new Error("Value for added property " + addition.getKey() + " refers to P0");
+				}
+
+				if (!this.isDefined(v).isPresent()) {
 					throw new Error("Value for added property " + addition.getKey() + " of prototype " + proto + " refers to undefined prototype " + addition.getValue());
 				}
 			}
@@ -68,27 +73,22 @@ public class KnowledgeBase implements IKnowledgeBase {
 
 		// Check derivation is DAG
 
-		// It has been tried to improve by not re-traversing
-		// paths.
-		// This is slower due to look-up times for short
-		// chains. Long chains get a slight gain.
+		// It could be tried to reduce the size of 'grounded' by only including IDs with a given probability. This might speed up things, but should be benchmarked.
 
-		// HashSet<ID> checked = new HashSet<>();
+		HashSet<ID> grounded = new HashSet<>();
+		grounded.add(Prototype.P_0.id);
 		for (Entry<ID, PrototypeDefinition> proto : this.KB.entrySet()) {
 			ID currentID = proto.getKey();
-			// if (checked.contains(currentID)) {
-			// continue;
-			// }
 			Set<ID> currentBranch = new HashSet<ID>();
 			PrototypeDefinition currentDef = proto.getValue();
-			while (!currentDef.parent.equals(Prototype.P_0.id)) {
+			while (!grounded.contains(currentID)) {
 				if (!currentBranch.add(currentID)) {
 					throw new Error("Cycle detected in inheritance tree for " + currentDef);
 				}
 				currentID = currentDef.parent;
 				currentDef = this.KB.get(currentID);
 			}
-			// checked.addAll(currentBranch);
+			grounded.addAll(currentBranch);
 		}
 	}
 

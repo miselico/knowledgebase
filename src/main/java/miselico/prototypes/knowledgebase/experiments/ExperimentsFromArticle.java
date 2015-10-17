@@ -88,10 +88,11 @@ public class ExperimentsFromArticle {
 		System.out.println("####blocks with " + blocks + " layers. ####");
 		KnowledgeBase.Builder kbb = new KnowledgeBase.Builder(EmptyKnowledgeBase.instance);
 
+		ID firstValue = ExperimentsFromArticle.generateID(0, 0);
 		for (int j = 0; j < numberPerlayer; j++) {
 			Builder pb = Prototypes.builder(Prototype.P_0);
 			for (Property property : properties) {
-				pb.add(property, Prototype.P_0);
+				pb.add(property, firstValue);
 			}
 			kbb.add(pb.build(ExperimentsFromArticle.generateID(0, j)));
 		}

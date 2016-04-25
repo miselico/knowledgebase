@@ -5,10 +5,14 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
-import org.apache.http.client.cache.CacheResponseStatus;
+import org.apache.http.Header;
 import org.apache.http.client.cache.HttpCacheContext;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
@@ -20,6 +24,7 @@ import org.apache.http.impl.client.cache.CacheConfig;
 import org.apache.http.impl.client.cache.CachingHttpClients;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.ImmutableSet;
 
 import miselico.prototypes.knowledgebase.ID;
 import miselico.prototypes.knowledgebase.IKnowledgeBase;
@@ -30,6 +35,19 @@ import miselico.prototypes.serializers.ParseException;
 import miselico.prototypes.serializers.SimpleDeserializer;
 
 public class RemoteKB implements IKnowledgeBase {
+
+	public static class PrototypeWithAlternates extends Prototype {
+		private final ImmutableSet<URI> alt;
+
+		public PrototypeWithAlternates(Prototype p, Collection<URI> alternatives) {
+			super(p.id, p.def);
+			this.alt = ImmutableSet.copyOf(alternatives);
+		}
+
+		public ImmutableSet<URI> getAlternatives() {
+			return this.alt;
+		}
+	}
 
 	private static final boolean CONTENTCOMPRESSION = false;
 	private final CloseableHttpClient cachingClient;
@@ -45,7 +63,7 @@ public class RemoteKB implements IKnowledgeBase {
 	}
 
 	@Override
-	public Optional<Prototype> isDefined(ID id) {
+	public Optional<PrototypeWithAlternates> isDefined(ID id) {
 		URIBuilder b = new URIBuilder(this.datasource);
 		b.addParameter("p", id.toString());
 		URI uri;
@@ -57,30 +75,49 @@ public class RemoteKB implements IKnowledgeBase {
 		return Optional.ofNullable(this.fetch(uri));
 	}
 
-	private Prototype fetch(URI uri) {
+	private PrototypeWithAlternates fetch(URI uri) {
 		HttpCacheContext context = HttpCacheContext.create();
 		HttpGet httpget = new HttpGet(uri);
 		try (CloseableHttpResponse response = this.cachingClient.execute(httpget, context)) {
-			CacheResponseStatus responseStatus = context.getCacheResponseStatus();
-			switch (responseStatus) {
-			case CACHE_HIT:
-				System.out.println("A response was generated from the cache with " + "no requests sent upstream");
-				break;
-			case CACHE_MODULE_RESPONSE:
-				System.out.println("The response was generated directly by the " + "caching module");
-				break;
-			case CACHE_MISS:
-				System.out.println("The response came from an upstream server");
-				break;
-			case VALIDATED:
-				System.out.println("The response was generated from the cache " + "after validating the entry with the origin server");
-				break;
+			// CacheResponseStatus responseStatus =
+			// context.getCacheResponseStatus();
+			// switch (responseStatus) {
+			// case CACHE_HIT:
+			// System.out.println("A response was generated from the cache with
+			// " + "no requests sent upstream");
+			// break;
+			// case CACHE_MODULE_RESPONSE:
+			// System.out.println("The response was generated directly by the "
+			// + "caching module");
+			// break;
+			// case CACHE_MISS:
+			// System.out.println("The response came from an upstream server");
+			// break;
+			// case VALIDATED:
+			// System.out.println("The response was generated from the cache " +
+			// "after validating the entry with the origin server");
+			// break;
+			// }
+
+			// parse link headers to search for alternates
+
+			Set<URI> alternates = new HashSet<>();
+			for (Header linkHeader : response.getHeaders("Link")) {
+				try {
+					alternates.addAll(RemoteKB.linkHeaderParser.parse(linkHeader.getValue()));
+				} catch (URISyntaxException e) {
+					Logger.getLogger(RemoteKB.class.getName()).info("An excepiton was thrown while parsing the Link header. This exception is silenced. Original message :" + e.getMessage());
+				}
 			}
-			return this.des.deserializeOne(new InputStreamReader(response.getEntity().getContent(), StandardCharsets.UTF_8));
+
+			Prototype prot = this.des.deserializeOne(new InputStreamReader(response.getEntity().getContent(), StandardCharsets.UTF_8));
+			return new PrototypeWithAlternates(prot, alternates);
 		} catch (IOException | ParseException e) {
 			throw new RuntimeException(e);
 		}
 	}
+
+	private static final LimitedLinkHeaderParser linkHeaderParser = new LimitedLinkHeaderParser();
 
 	public static void main(String[] args) throws URISyntaxException, InterruptedException {
 		KnowledgeBase base = MyKnowledgeBase.getSomebase();
@@ -97,9 +134,10 @@ public class RemoteKB implements IKnowledgeBase {
 
 	private static long timeFetch(RemoteKB kb, ID res) {
 		Stopwatch w = Stopwatch.createStarted();
-		Optional<Prototype> prot = kb.isDefined(res);
+		Optional<PrototypeWithAlternates> prot = kb.isDefined(res);
 		long time = w.elapsed(TimeUnit.MILLISECONDS);
 		System.out.println(prot.isPresent());
+		System.out.println(prot.get().alt);
 		return time;
 	}
 

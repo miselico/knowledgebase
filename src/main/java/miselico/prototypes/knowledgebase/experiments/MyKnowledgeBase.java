@@ -1,6 +1,6 @@
 package miselico.prototypes.knowledgebase.experiments;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import miselico.prototypes.knowledgebase.AddChangeSet;
 import miselico.prototypes.knowledgebase.ID;

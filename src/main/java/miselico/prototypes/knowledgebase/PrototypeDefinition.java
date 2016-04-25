@@ -1,5 +1,7 @@
 package miselico.prototypes.knowledgebase;
 
+import java.net.URI;
+
 import com.google.common.base.Preconditions;
 
 public class PrototypeDefinition {
@@ -31,7 +33,7 @@ public class PrototypeDefinition {
 	public static final PrototypeDefinition P_0;
 
 	static {
-		ID parent = null;
+		ID parent = new ID(URI.create("proto:P_0"));
 		RemoveChangeSet remove = RemoveChangeSet.empty();
 		AddChangeSet add = AddChangeSet.empty();
 		P_0 = new PrototypeDefinition(parent, remove, add);
@@ -50,6 +52,52 @@ public class PrototypeDefinition {
 	@Override
 	public String toString() {
 		return "base=" + this.parent + ", remove=" + this.remove + ", add=" + this.add;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = (prime * result) + ((this.add == null) ? 0 : this.add.hashCode());
+		result = (prime * result) + ((this.parent == null) ? 0 : this.parent.hashCode());
+		result = (prime * result) + ((this.remove == null) ? 0 : this.remove.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (this.getClass() != obj.getClass()) {
+			return false;
+		}
+		PrototypeDefinition other = (PrototypeDefinition) obj;
+		if (this.add == null) {
+			if (other.add != null) {
+				return false;
+			}
+		} else if (!this.add.equals(other.add)) {
+			return false;
+		}
+		if (this.parent == null) {
+			if (other.parent != null) {
+				return false;
+			}
+		} else if (!this.parent.equals(other.parent)) {
+			return false;
+		}
+		if (this.remove == null) {
+			if (other.remove != null) {
+				return false;
+			}
+		} else if (!this.remove.equals(other.remove)) {
+			return false;
+		}
+		return true;
 	}
 
 }

@@ -1,6 +1,6 @@
 package miselico.prototypes.knowledgebase;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public class EmptyKnowledgeBase implements IKnowledgeBase {
 
@@ -8,15 +8,14 @@ public class EmptyKnowledgeBase implements IKnowledgeBase {
 	}
 
 	public static final EmptyKnowledgeBase instance = new EmptyKnowledgeBase();
+	private static final Optional<Prototype> OptP_0 = Optional.of(Prototype.P_0);
 
 	@Override
 	public Optional<Prototype> isDefined(ID id) {
-		return Optional.absent();
-	}
-
-	@Override
-	public Prototype get(ID id) {
-		throw new Error();
+		if (id.equals(Prototype.P_0.id)) {
+			return EmptyKnowledgeBase.OptP_0;
+		}
+		return Optional.empty();
 	}
 
 }

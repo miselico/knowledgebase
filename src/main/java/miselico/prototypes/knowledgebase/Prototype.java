@@ -35,4 +35,42 @@ public class Prototype {
 		return this.def.isFixPoint();
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = (prime * result) + ((this.def == null) ? 0 : this.def.hashCode());
+		result = (prime * result) + ((this.id == null) ? 0 : this.id.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (this.getClass() != obj.getClass()) {
+			return false;
+		}
+		Prototype other = (Prototype) obj;
+		if (this.def == null) {
+			if (other.def != null) {
+				return false;
+			}
+		} else if (!this.def.equals(other.def)) {
+			return false;
+		}
+		if (this.id == null) {
+			if (other.id != null) {
+				return false;
+			}
+		} else if (!this.id.equals(other.id)) {
+			return false;
+		}
+		return true;
+	}
+
 }

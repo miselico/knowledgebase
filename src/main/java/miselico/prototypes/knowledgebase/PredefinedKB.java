@@ -6,8 +6,8 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Optional;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -42,12 +42,7 @@ public class PredefinedKB implements IKnowledgeBase {
 		if (asString.isPresent()) {
 			return asString;
 		}
-		return Optional.absent();
-	}
-
-	@Override
-	public Prototype get(ID id) {
-		return this.isDefined(id).get();
+		return Optional.empty();
 	}
 
 	public static Prototype get(String value) {
@@ -79,7 +74,7 @@ public class PredefinedKB implements IKnowledgeBase {
 			@Override
 			protected Optional<Long> fromURLFragment(String fragment) {
 				Long str = Longs.tryParse(fragment);
-				return Optional.fromNullable(str);
+				return Optional.ofNullable(str);
 			}
 
 		};
@@ -89,10 +84,6 @@ public class PredefinedKB implements IKnowledgeBase {
 			return integers.kb.isDefined(id);
 		}
 
-		@Override
-		public Prototype get(ID id) {
-			return integers.kb.get(id);
-		}
 
 		public Optional<Long> convertBack(ID id) {
 			return integers.kb.convertBack(id);
@@ -139,11 +130,6 @@ public class PredefinedKB implements IKnowledgeBase {
 			return strings.kb.isDefined(id);
 		}
 
-		@Override
-		public Prototype get(ID id) {
-			return strings.kb.get(id);
-		}
-
 		public Optional<String> convertBack(ID id) {
 			return strings.kb.convertBack(id);
 		}
@@ -164,7 +150,7 @@ public class PredefinedKB implements IKnowledgeBase {
 
 		protected abstract Optional<E> fromURLFragment(String fragment);
 
-		private LoadingCache<E, Prototype> cache = CacheBuilder.newBuilder().build(new CacheLoader<E, Prototype>() {
+		private final LoadingCache<E, Prototype> cache = CacheBuilder.newBuilder().build(new CacheLoader<E, Prototype>() {
 
 			@Override
 			public Prototype load(E value) throws Exception {
@@ -180,15 +166,10 @@ public class PredefinedKB implements IKnowledgeBase {
 
 		private final Splitter s = Splitter.on(this.baseString).omitEmptyStrings();
 
-		public Prototype get(ID id) {
-			Optional<Prototype> v = this.isDefined(id);
-			return v.get();
-		}
-
 		public Optional<Prototype> isDefined(ID id) {
 			Optional<E> parsedVal = this.convertBack(id);
 			if (!parsedVal.isPresent()) {
-				return Optional.absent();
+				return Optional.empty();
 			}
 			return Optional.of(this.define(parsedVal.get()));
 		}
@@ -196,12 +177,12 @@ public class PredefinedKB implements IKnowledgeBase {
 		public Optional<E> convertBack(ID id) {
 			String val = id.toString();
 			if (!val.startsWith(this.baseString)) {
-				return Optional.absent();
+				return Optional.empty();
 			}
 			List<String> parts = this.s.splitToList(val);
 			if (!(parts.size() == 1)) {
 				System.err.println("prefix " + this.baseString + " used, but incorect URI to be of this type, likely an error" + id);
-				return Optional.absent();
+				return Optional.empty();
 			}
 			Optional<E> parsedVal = this.fromURLFragment(parts.get(0));
 			if (!parsedVal.isPresent()) {
@@ -212,33 +193,4 @@ public class PredefinedKB implements IKnowledgeBase {
 
 	}
 
-	// public static final ImmutableList<Prototype> integers;
-	//
-	// public static final int MAX_INT = 512;
-	//
-	// static {
-	// ImmutableList.Builder<Prototype> b = ImmutableList.builder();
-	// for (int i = 0; i < PredefinedKB.MAX_INT; i++) {
-	// b.add(Prototype.create(new ID(URI.create("http://example.com/integer/" +
-	// i)), Prototype.P_0.id, ChangeSet.empty(), ChangeSet.empty()));
-	// }
-	// integers = b.build();
-	// }
-
-	// private static final ImmutableMap<ID, Prototype> KB;
-
-	// public static boolean isDefined(ID id) {
-	// return PredefinedKB.KB.containsKey(id);
-	// }
-
-	// static {
-	// ImmutableMap.Builder<ID, Prototype> b = ImmutableMap.builder();
-	// // empty
-	// b.put(Prototype.P_0.id, Prototype.P_0);
-	// // integers
-	// for (Prototype prototype : PredefinedKB.integers) {
-	// b.put(prototype.id, prototype);
-	// }
-	// KB = b.build();
-	// }
 }

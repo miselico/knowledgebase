@@ -1,16 +1,14 @@
 package miselico.prototypes.knowledgebase;
 
-import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableMap;
 
@@ -24,7 +22,7 @@ import com.google.common.collect.ImmutableMap;
 public class KnowledgeBase implements IKnowledgeBase {
 
 	public final ImmutableMap<ID, PrototypeDefinition> KB;
-	private IKnowledgeBase external;
+	private final IKnowledgeBase external;
 
 	/**
 	 * 
@@ -34,9 +32,22 @@ public class KnowledgeBase implements IKnowledgeBase {
 	 *            data defined externally
 	 */
 	public KnowledgeBase(ImmutableMap<ID, PrototypeDefinition> kB, IKnowledgeBase external) {
+		this(kB, external, true);
+	}
+
+	/**
+	 * 
+	 * @param kB
+	 *            the data in this knowledge base
+	 * @param external
+	 *            data defined externally
+	 */
+	private KnowledgeBase(ImmutableMap<ID, PrototypeDefinition> kB, IKnowledgeBase external, boolean checkConsistency) {
 		this.KB = kB;
 		this.external = external;
-		this.checkConsistency();
+		if (checkConsistency) {
+			this.checkConsistency();
+		}
 	}
 
 	// Checks whether ALL IDs mentioned are reachable within the KB or in the
@@ -73,7 +84,9 @@ public class KnowledgeBase implements IKnowledgeBase {
 
 		// Check derivation is DAG
 
-		// It could be tried to reduce the size of 'grounded' by only including IDs with a given probability. This might speed up things, but should be benchmarked.
+		// It could be tried to reduce the size of 'grounded' by only including
+		// IDs with a given probability. This might speed up things, but should
+		// be benchmarked.
 
 		HashSet<ID> grounded = new HashSet<>();
 		grounded.add(Prototype.P_0.id);
@@ -106,11 +119,6 @@ public class KnowledgeBase implements IKnowledgeBase {
 		return this.external.isDefined(id);
 	}
 
-	@Override
-	public Prototype get(ID id) {
-		return this.isDefined(id).get();
-	}
-
 	public ImmutableMap<ID, PrototypeDefinition> prototypes() {
 		return this.KB;
 	}
@@ -140,7 +148,7 @@ public class KnowledgeBase implements IKnowledgeBase {
 				// base. ie. externally defined things.
 				while (!(done.containsKey(current.id))) {
 					branch.addFirst(current);
-					current = this.get(current.def.parent);
+					current = this.isDefined(current.def.parent).get();
 				}
 				// invariant: we now pop the things form the stack.
 				// We know that at each stage the fixpoint of the parent has
@@ -163,7 +171,7 @@ public class KnowledgeBase implements IKnowledgeBase {
 				}
 			}
 		}
-		return b.build();
+		return b.build(false);
 	}
 
 	public static KnowledgeBase empty(IKnowledgeBase external) {
@@ -182,40 +190,57 @@ public class KnowledgeBase implements IKnowledgeBase {
 	 */
 	public static class Builder {
 
-		private KnowledgeBase base;
-		private List<Prototype> adds = new ArrayList<Prototype>();
-		private List<ID> removals = new ArrayList<ID>();
+		// private KnowledgeBase base;
+		// private List<Prototype> adds = new ArrayList<Prototype>();
+		// private List<ID> removals = new ArrayList<ID>();
+
+		private final Map<ID, PrototypeDefinition> prototypez;
+		private final IKnowledgeBase external;
 
 		public Builder(IKnowledgeBase external) {
 			this(KnowledgeBase.empty(external));
 		}
 
 		public Builder(KnowledgeBase base) {
-			this.base = base;
+			this.prototypez = new HashMap<>(base.KB);
+			this.external = base.external;
 		}
 
 		public Builder add(Prototype p) {
-			this.adds.add(p);
+			if (this.prototypez.containsKey(p.id) || this.external.isDefined(p.id).isPresent()) {
+				throw new Error("A prototype with ID " + p.id + " already exists.");
+			}
+			this.prototypez.put(p.id, p.def);
 			return this;
 		}
 
 		public Builder remove(ID p) {
-			this.removals.add(p);
+			if (this.external.isDefined(p).isPresent()) {
+				throw new Error("Cannot remove prototype with ID " + p + " because it is defined externally.");
+			}
+			this.prototypez.remove(p);
 			return this;
 		}
 
-		public KnowledgeBase build() {
-
-			Map<ID, PrototypeDefinition> prototypes = new HashMap<>();
-			prototypes.putAll(this.base.KB);
-			for (Prototype prototype : this.adds) {
-				prototypes.put(prototype.id, prototype.def);
-			}
-			for (ID id : this.removals) {
-				prototypes.remove(id);
-			}
-			return new KnowledgeBase(ImmutableMap.copyOf(prototypes), this.base.external);
+		/**
+		 * Does the KB which would be built contain a prototype with the given
+		 * ID?
+		 * 
+		 * @param p
+		 * @return
+		 */
+		public boolean buildKnowledgeBaseContains(ID p) {
+			return this.prototypez.containsKey(p);
 		}
+
+		public KnowledgeBase build() {
+			return this.build(true);
+		}
+
+		private KnowledgeBase build(boolean checkConsistency) {
+			return new KnowledgeBase(ImmutableMap.copyOf(this.prototypez), this.external, checkConsistency);
+		}
+
 	}
 
 	/**

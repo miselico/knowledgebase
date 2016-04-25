@@ -42,6 +42,9 @@ public class Property {
 		return this.value.equals(other.value);
 	}
 
+	/**
+	 * The textual representation of the property
+	 */
 	@Override
 	public String toString() {
 		return this.value.toString();

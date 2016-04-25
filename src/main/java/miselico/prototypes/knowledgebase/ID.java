@@ -41,6 +41,9 @@ public class ID {
 		return this.value.equals(other.value);
 	}
 
+	/**
+	 * The string representation of the ID
+	 */
 	@Override
 	public String toString() {
 		return this.value;

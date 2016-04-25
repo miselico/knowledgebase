@@ -1,7 +1,6 @@
 package miselico.prototypes.knowledgebase;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -84,7 +83,6 @@ public class PredefinedKB implements IKnowledgeBase {
 			return integers.kb.isDefined(id);
 		}
 
-
 		public Optional<Long> convertBack(ID id) {
 			return integers.kb.convertBack(id);
 		}
@@ -155,7 +153,7 @@ public class PredefinedKB implements IKnowledgeBase {
 			@Override
 			public Prototype load(E value) throws Exception {
 				String fragment = PredefinedKBPart.this.toURLFragment(value);
-				ID id = new ID(new URI(PredefinedKBPart.this.baseString + fragment));
+				ID id = ID.of(PredefinedKBPart.this.baseString + fragment);
 				return new Prototype(id, PredefinedKB.def);
 			}
 		});

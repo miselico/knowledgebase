@@ -1,6 +1,6 @@
 package miselico.prototypes.knowledgebase;
 
-import java.net.URI;
+import org.apache.abdera.i18n.iri.IRI;
 
 import com.google.common.base.Preconditions;
 
@@ -8,17 +8,17 @@ public class ID {
 	private final String value;
 
 	public static ID of(String value) {
-		return new ID(URI.create(value));
+		return new ID(new IRI(value));
 	}
 
-	public ID(URI value) {
-		Preconditions.checkNotNull(value);
-		Preconditions.checkArgument(value.isAbsolute(), "Only absolute URIs are valid IDs");
-		this.value = value.toString();
+	public ID(IRI iri) {
+		Preconditions.checkNotNull(iri);
+		Preconditions.checkArgument(iri.isAbsolute(), "Only absolute URIs are valid IDs");
+		this.value = iri.toString();
 	}
 
-	public URI getValue() {
-		return URI.create(this.value);
+	public IRI getValue() {
+		return new IRI(this.value);
 	}
 
 	@Override
@@ -42,7 +42,8 @@ public class ID {
 	}
 
 	/**
-	 * The string representation of the ID
+	 * The string representation of the ID, this will be the string
+	 * representation of the IRI.
 	 */
 	@Override
 	public String toString() {

@@ -1,7 +1,5 @@
 package miselico.prototypes.knowledgebase;
 
-import java.net.URI;
-
 import com.google.common.base.Preconditions;
 
 public class PrototypeDefinition {
@@ -33,7 +31,7 @@ public class PrototypeDefinition {
 	public static final PrototypeDefinition P_0;
 
 	static {
-		ID parent = new ID(URI.create("proto:P_0"));
+		ID parent = ID.of("proto:P_0");
 		RemoveChangeSet remove = RemoveChangeSet.empty();
 		AddChangeSet add = AddChangeSet.empty();
 		P_0 = new PrototypeDefinition(parent, remove, add);

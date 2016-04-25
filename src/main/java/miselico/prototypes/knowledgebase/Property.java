@@ -1,6 +1,6 @@
 package miselico.prototypes.knowledgebase;
 
-import java.net.URI;
+import org.apache.abdera.i18n.iri.IRI;
 
 import com.google.common.base.Preconditions;
 
@@ -9,17 +9,17 @@ public class Property {
 	private final String value;
 
 	public static Property of(String value) {
-		return new Property(URI.create(value));
+		return new Property(new IRI(value));
 	}
 
-	public Property(URI value) {
-		Preconditions.checkNotNull(value);
-		Preconditions.checkArgument(value.isAbsolute(), "Only absolute URIs are valid properties");
-		this.value = value.toString();
+	public Property(IRI iri) {
+		Preconditions.checkNotNull(iri);
+		Preconditions.checkArgument(iri.isAbsolute(), "Only absolute URIs are valid properties");
+		this.value = iri.toString();
 	}
 
-	public URI getValue() {
-		return URI.create(this.value);
+	public IRI getValue() {
+		return new IRI(this.value);
 	}
 
 	@Override
@@ -43,7 +43,7 @@ public class Property {
 	}
 
 	/**
-	 * The textual representation of the property
+	 * The string representation of the property i.e. the IRI
 	 */
 	@Override
 	public String toString() {

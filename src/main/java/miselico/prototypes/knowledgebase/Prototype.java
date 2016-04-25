@@ -1,7 +1,5 @@
 package miselico.prototypes.knowledgebase;
 
-import java.net.URI;
-
 public class Prototype {
 
 	public final ID id;
@@ -16,7 +14,7 @@ public class Prototype {
 	public static final Prototype P_0;
 
 	static {
-		ID id = new ID(URI.create("proto:P_0"));
+		ID id = ID.of("proto:P_0");
 		P_0 = new Prototype(id, PrototypeDefinition.P_0);
 	}
 

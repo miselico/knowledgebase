@@ -126,8 +126,8 @@ public class MyKnowledgeBase {
 		KnowledgeBase fixPoint = kb.computeFixPoint();
 		System.out.println(fixPoint);
 
-		Optional<Prototype> answer = kb.isDefined(ID.of("http://example.fi/#Jyvaskyla"));
-		Optional<Prototype> fpAnswer = fixPoint.isDefined(ID.of("http://example.fi/#Jyvaskyla"));
+		Optional<? extends Prototype> answer = kb.isDefined(ID.of("http://example.fi/#Jyvaskyla"));
+		Optional<? extends Prototype> fpAnswer = fixPoint.isDefined(ID.of("http://example.fi/#Jyvaskyla"));
 		if (answer.isPresent() && fpAnswer.isPresent()) {
 			System.out.println("JKL in KB:" + answer.get());
 			System.out.println("JKL in fp:" + fpAnswer.get());

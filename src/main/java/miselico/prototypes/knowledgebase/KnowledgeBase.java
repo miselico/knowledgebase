@@ -108,7 +108,7 @@ public class KnowledgeBase implements IKnowledgeBase {
 	private static final Optional<Prototype> OptP_0 = Optional.of(Prototype.P_0);
 
 	@Override
-	public Optional<Prototype> isDefined(ID id) {
+	public Optional<? extends Prototype> isDefined(ID id) {
 		PrototypeDefinition prot = this.KB.get(id);
 		if (prot != null) {
 			return Optional.of(new Prototype(id, prot));

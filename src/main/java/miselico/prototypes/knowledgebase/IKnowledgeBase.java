@@ -19,5 +19,5 @@ public interface IKnowledgeBase {
 	 * @param id
 	 * @return
 	 */
-	public Optional<Prototype> isDefined(ID id);
+	public Optional<? extends Prototype> isDefined(ID id);
 }

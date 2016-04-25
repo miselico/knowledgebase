@@ -3,24 +3,22 @@ package miselico.prototypes.knowledgebase;
 import java.util.Collection;
 import java.util.Map.Entry;
 
-import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 
 public class ChangeSet {
 
-	protected final ImmutableMultimap<Property, ID> changes;
+	protected final ImmutableSetMultimap<Property, ID> changes;
 
 	protected ChangeSet(ImmutableSetMultimap<Property, ID> changes) {
 		this.changes = ImmutableSetMultimap.copyOf(changes);
 	}
 
-	public ImmutableCollection<ID> apply(Property p) {
+	public ImmutableSet<ID> apply(Property p) {
 		return this.changes.get(p);
 	}
 
-	public ImmutableCollection<Entry<Property, ID>> entries() {
+	public ImmutableSet<Entry<Property, ID>> entries() {
 		return this.changes.entries();
 	}
 
@@ -53,6 +51,26 @@ public class ChangeSet {
 			return true;
 		}
 		return this.changes.isEmpty();
+	}
+
+	@Override
+	public int hashCode() {
+		return this.changes.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (this.getClass() != obj.getClass()) {
+			return false;
+		}
+		ChangeSet other = (ChangeSet) obj;
+		return this.changes.equals(other.changes);
 	}
 
 }

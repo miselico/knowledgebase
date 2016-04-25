@@ -19,6 +19,36 @@ public class RemoveChangeSet extends ChangeSet {
 		this.removeAll = removeAll;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = (prime * result) + ((this.removeAll == null) ? 0 : this.removeAll.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (this.getClass() != obj.getClass()) {
+			return false;
+		}
+		RemoveChangeSet other = (RemoveChangeSet) obj;
+		if (this.removeAll == null) {
+			if (other.removeAll != null) {
+				return false;
+			}
+		} else if (!this.removeAll.equals(other.removeAll)) {
+			return false;
+		}
+		return true;
+	}
+
 	public static Builder builder() {
 		return new Builder();
 	}
@@ -63,6 +93,10 @@ public class RemoveChangeSet extends ChangeSet {
 	@Override
 	public ImmutableSet<Property> affectsProperties() {
 		return ImmutableSet.<Property> builder().addAll(super.affectsProperties()).addAll(this.removeAll).build();
+	}
+
+	public ImmutableSet<Property> getRemoveAll() {
+		return this.removeAll;
 	}
 
 	public static class Builder {

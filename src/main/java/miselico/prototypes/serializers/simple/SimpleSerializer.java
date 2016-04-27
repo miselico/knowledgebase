@@ -1,4 +1,4 @@
-package miselico.prototypes.serializers;
+package miselico.prototypes.serializers.simple;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -10,20 +10,23 @@ import miselico.prototypes.knowledgebase.ID;
 import miselico.prototypes.knowledgebase.Property;
 import miselico.prototypes.knowledgebase.Prototype;
 import miselico.prototypes.knowledgebase.PrototypeDefinition;
+import miselico.prototypes.serializers.Serializer;
 
-public class SimpleSerializer {
+public class SimpleSerializer implements Serializer {
 
+	@Override
 	public void serialize(Iterator<Prototype> ps, Writer w) throws IOException {
 		String separator = "";
 		while (ps.hasNext()) {
 			w.write(separator);
-			this.serialize(ps.next(), w);
+			this.serializeOne(ps.next(), w);
 			separator = "\n";
 		}
 
 	}
 
-	public void serialize(Prototype p, Writer w) throws IOException {
+	@Override
+	public void serializeOne(Prototype p, Writer w) throws IOException {
 		// ID
 		w.write(p.id.toString());
 		w.write('\n');

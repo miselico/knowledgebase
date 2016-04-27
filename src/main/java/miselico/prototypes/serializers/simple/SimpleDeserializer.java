@@ -1,4 +1,4 @@
-package miselico.prototypes.serializers;
+package miselico.prototypes.serializers.simple;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,10 +14,13 @@ import miselico.prototypes.knowledgebase.Property;
 import miselico.prototypes.knowledgebase.Prototype;
 import miselico.prototypes.knowledgebase.Prototypes;
 import miselico.prototypes.knowledgebase.Prototypes.Builder;
+import miselico.prototypes.serializers.Deserializer;
+import miselico.prototypes.serializers.ParseException;
 
-public class SimpleDeserializer {
+public class SimpleDeserializer implements Deserializer {
 	private static final Splitter SPACESPLITTER = Splitter.on(' ').omitEmptyStrings().trimResults();
 
+	@Override
 	public Prototype deserializeOne(Reader reader) throws IOException, ParseException {
 
 		try (BufferedReader r = new BufferedReader(reader)) {
@@ -40,6 +43,7 @@ public class SimpleDeserializer {
 		}
 	}
 
+	@Override
 	public List<Prototype> deserialize(Reader reader) throws IOException, ParseException {
 		List<Prototype> ps = new ArrayList<>();
 

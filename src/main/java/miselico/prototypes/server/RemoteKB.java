@@ -32,7 +32,7 @@ import miselico.prototypes.knowledgebase.KnowledgeBase;
 import miselico.prototypes.knowledgebase.Prototype;
 import miselico.prototypes.knowledgebase.experiments.MyKnowledgeBase;
 import miselico.prototypes.serializers.ParseException;
-import miselico.prototypes.serializers.SimpleDeserializer;
+import miselico.prototypes.serializers.json.JSONDeserializer;
 
 public class RemoteKB implements IKnowledgeBase {
 
@@ -52,14 +52,14 @@ public class RemoteKB implements IKnowledgeBase {
 	private static final boolean CONTENTCOMPRESSION = false;
 	private final CloseableHttpClient cachingClient;
 	private final URI datasource;
-	private final SimpleDeserializer des;
+	private final JSONDeserializer des;
 
 	public RemoteKB(URI datasource) {
 		this.datasource = datasource;
 		CacheConfig cacheConfig = CacheConfig.custom().setMaxCacheEntries(1000).setMaxObjectSize(8192).build();
 		RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(30000).setSocketTimeout(30000).setCookieSpec(CookieSpecs.IGNORE_COOKIES).setContentCompressionEnabled(RemoteKB.CONTENTCOMPRESSION).build();
 		this.cachingClient = CachingHttpClients.custom().setCacheConfig(cacheConfig).setDefaultRequestConfig(requestConfig).build();
-		this.des = new SimpleDeserializer();
+		this.des = JSONDeserializer.create();
 	}
 
 	@Override

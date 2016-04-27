@@ -25,7 +25,8 @@ import com.google.common.collect.Multimap;
 import miselico.prototypes.knowledgebase.ID;
 import miselico.prototypes.knowledgebase.IKnowledgeBase;
 import miselico.prototypes.knowledgebase.Prototype;
-import miselico.prototypes.serializers.SimpleSerializer;
+import miselico.prototypes.serializers.Serializer;
+import miselico.prototypes.serializers.json.JSONSerializer;
 
 /**
  * A handler for a Jetty {@link Server} serving a knowledge base. This handler
@@ -54,6 +55,8 @@ public class SimpleKBHandler extends AbstractHandler {
 	}
 
 	private final Cache<String, Prototype> ETagCache = CacheBuilder.newBuilder().maximumSize(1000).build();
+
+	private final Serializer ser = JSONSerializer.create();
 
 	@Override
 	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -98,7 +101,7 @@ public class SimpleKBHandler extends AbstractHandler {
 		response.setHeader("ETag", newEtag.toString());
 
 		OutputStreamWriter out = new OutputStreamWriter(response.getOutputStream(), StandardCharsets.UTF_8);
-		new SimpleSerializer().serialize(prototype, out);
+		this.ser.serializeOne(prototype, out);
 		out.flush();
 		out.close();
 	}

@@ -9,7 +9,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+
+import com.google.common.collect.ImmutableList;
 
 import miselico.prototypes.knowledgebase.ID;
 import miselico.prototypes.knowledgebase.KnowledgeBase;
@@ -20,29 +23,38 @@ import miselico.prototypes.knowledgebase.Prototypes;
 import miselico.prototypes.knowledgebase.Prototypes.Builder;
 import miselico.prototypes.knowledgebase.experiments.MyKnowledgeBase;
 
-public class SimpleSerializerTest {
+public abstract class SerializerTest {
+
+	private Serializer ser;
+	private Deserializer deser;
+
+	protected abstract Serializer getSerializer();
+
+	protected abstract Deserializer getDeserializer();
+
+	@Before
+	public void init() {
+		this.ser = this.getSerializer();
+		this.deser = this.getDeserializer();
+	}
 
 	@Test
 	public void testSerializePrototype() throws IOException, ParseException {
 		KnowledgeBase b = MyKnowledgeBase.getSomebase();
-		SimpleSerializer ser = new SimpleSerializer();
-		SimpleDeserializer deser = new SimpleDeserializer();
 
 		for (ID id : b.prototypes().keySet()) {
 			Prototype prot = b.isDefined(id).get();
 			StringWriter w = new StringWriter();
-			ser.serialize(prot, w);
+			this.ser.serializeOne(prot, w);
 			// System.out.println(w);
 			StringReader r = new StringReader(w.toString());
-			Collection<Prototype> protCol = deser.deserialize(r);
-			Assert.assertEquals(protCol.size(), 1);
-			Prototype protD = protCol.iterator().next();
+			Prototype protD = this.deser.deserializeOne(r);
 			Assert.assertEquals(prot.id, protD.id);
 			Assert.assertEquals(prot.def.parent, protD.def.parent);
 			Assert.assertEquals(prot.def.add, protD.def.add);
 			Assert.assertEquals(prot.def.remove, protD.def.remove);
 			r = new StringReader(w.toString());
-			protD = deser.deserializeOne(r);
+			protD = this.deser.deserializeOne(r);
 			Assert.assertEquals(prot.id, protD.id);
 			Assert.assertEquals(prot.def.parent, protD.def.parent);
 			Assert.assertEquals(prot.def.add, protD.def.add);
@@ -53,14 +65,12 @@ public class SimpleSerializerTest {
 	@Test
 	public void testSerializePrototypes() throws IOException, ParseException {
 		KnowledgeBase b = MyKnowledgeBase.getSomebase();
-		SimpleSerializer ser = new SimpleSerializer();
-		SimpleDeserializer deser = new SimpleDeserializer();
 		List<Prototype> protoOriginal = b.prototypes().entrySet().stream().map(e -> new Prototype(e.getKey(), e.getValue())).collect(Collectors.toList());
 		StringWriter w = new StringWriter();
-		ser.serialize(protoOriginal.iterator(), w);
-		System.out.println(w);
+		this.ser.serialize(protoOriginal.iterator(), w);
+		// System.out.println(w);
 		StringReader r = new StringReader(w.toString());
-		List<Prototype> protoResult = deser.deserialize(r);
+		List<Prototype> protoResult = this.deser.deserialize(r);
 
 		HashMap<ID, PrototypeDefinition> allOriginal = new HashMap<>(b.prototypes());
 
@@ -78,8 +88,6 @@ public class SimpleSerializerTest {
 
 	@Test
 	public void testSerializeMany() throws IOException, ParseException {
-		SimpleSerializer ser = new SimpleSerializer();
-		SimpleDeserializer deser = new SimpleDeserializer();
 
 		for (int i = 1; i < 10000; i++) {
 			Builder builder = Prototypes.builder(ID.of("http://example.com#soMany" + i));
@@ -91,9 +99,9 @@ public class SimpleSerializerTest {
 			}
 			Prototype prot = builder.build(ID.of("http://example.com#soMany" + (i - 1)));
 			StringWriter w = new StringWriter();
-			ser.serialize(prot, w);
+			this.ser.serialize(ImmutableList.of(prot).iterator(), w);
 			StringReader r = new StringReader(w.toString());
-			Collection<Prototype> protCol = deser.deserialize(r);
+			Collection<Prototype> protCol = this.deser.deserialize(r);
 			Assert.assertEquals(protCol.size(), 1);
 			Prototype protD = protCol.iterator().next();
 			Assert.assertEquals(prot.id, protD.id);
@@ -101,11 +109,6 @@ public class SimpleSerializerTest {
 			Assert.assertEquals(prot.def.add, protD.def.add);
 			Assert.assertEquals(prot.def.remove, protD.def.remove);
 			r = new StringReader(w.toString());
-			protD = deser.deserializeOne(r);
-			Assert.assertEquals(prot.id, protD.id);
-			Assert.assertEquals(prot.def.parent, protD.def.parent);
-			Assert.assertEquals(prot.def.add, protD.def.add);
-			Assert.assertEquals(prot.def.remove, protD.def.remove);
 		}
 	}
 

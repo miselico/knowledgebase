@@ -25,7 +25,7 @@ public class PredefinedKB implements IKnowledgeBase {
 
 	public static final PredefinedKB kb = new PredefinedKB();
 
-	private PredefinedKB() {
+	protected PredefinedKB() {
 	}
 
 	@Override
@@ -136,7 +136,7 @@ public class PredefinedKB implements IKnowledgeBase {
 
 	private static final PrototypeDefinition def = PrototypeDefinition.create(Prototype.P_0, RemoveChangeSet.empty(), AddChangeSet.empty());
 
-	private abstract static class PredefinedKBPart<E> {
+	protected abstract static class PredefinedKBPart<E> {
 
 		protected abstract String getBaseString();
 

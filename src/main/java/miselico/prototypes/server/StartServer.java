@@ -12,9 +12,9 @@ import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
+import miselico.prototypes.experiments.MyKnowledgeBase;
 import miselico.prototypes.knowledgebase.ID;
 import miselico.prototypes.knowledgebase.KnowledgeBase;
-import miselico.prototypes.knowledgebase.experiments.MyKnowledgeBase;
 
 public class StartServer {
 
@@ -29,7 +29,7 @@ public class StartServer {
 			seeAlsoMap.put(id, new URIBuilder("https://search.yahoo.com/search").addParameter("p", id.toString()).build());
 		}
 
-		SimpleKBHandler kbhandler = new SimpleKBHandler(base, x -> 300L, seeAlsoMap);
+		KBHandler kbhandler = new KBHandler(base, x -> 300L, seeAlsoMap);
 
 		HandlerList handlers = new HandlerList();
 		handlers.setHandlers(new Handler[] { kbhandler, new DefaultHandler() });

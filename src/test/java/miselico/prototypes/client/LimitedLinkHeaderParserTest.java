@@ -1,4 +1,4 @@
-package miselico.prototypes.server;
+package miselico.prototypes.client;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -10,6 +10,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
+
+import miselico.prototypes.client.LimitedLinkHeaderParser;
 
 public class LimitedLinkHeaderParserTest {
 

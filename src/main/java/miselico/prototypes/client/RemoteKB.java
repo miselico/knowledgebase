@@ -1,4 +1,4 @@
-package miselico.prototypes.server;
+package miselico.prototypes.client;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -13,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import org.apache.http.Header;
-import org.apache.http.client.cache.HttpCacheContext;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -22,15 +21,17 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.cache.CacheConfig;
 import org.apache.http.impl.client.cache.CachingHttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableSet;
 
+import miselico.prototypes.experiments.MyKnowledgeBase;
 import miselico.prototypes.knowledgebase.ID;
 import miselico.prototypes.knowledgebase.IKnowledgeBase;
 import miselico.prototypes.knowledgebase.KnowledgeBase;
 import miselico.prototypes.knowledgebase.Prototype;
-import miselico.prototypes.knowledgebase.experiments.MyKnowledgeBase;
+import miselico.prototypes.serializers.Deserializer;
 import miselico.prototypes.serializers.ParseException;
 import miselico.prototypes.serializers.json.JSONDeserializer;
 
@@ -49,17 +50,25 @@ public class RemoteKB implements IKnowledgeBase {
 		}
 	}
 
-	private static final boolean CONTENTCOMPRESSION = false;
+	private static final boolean CONTENTCOMPRESSION = true;
 	private final CloseableHttpClient cachingClient;
 	private final URI datasource;
-	private final JSONDeserializer des;
+	private final Deserializer des;
 
 	public RemoteKB(URI datasource) {
 		this.datasource = datasource;
-		CacheConfig cacheConfig = CacheConfig.custom().setMaxCacheEntries(1000).setMaxObjectSize(8192).build();
+		CacheConfig cacheConfig = CacheConfig.custom().setMaxCacheEntries(1000).setMaxObjectSize(4096).build();
 		RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(30000).setSocketTimeout(30000).setCookieSpec(CookieSpecs.IGNORE_COOKIES).setContentCompressionEnabled(RemoteKB.CONTENTCOMPRESSION).build();
-		this.cachingClient = CachingHttpClients.custom().setCacheConfig(cacheConfig).setDefaultRequestConfig(requestConfig).build();
+		PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
+		connectionManager.setDefaultMaxPerRoute(1000);
+		this.cachingClient = CachingHttpClients.custom().setCacheConfig(cacheConfig).setDefaultRequestConfig(requestConfig).setConnectionManager(connectionManager).build();
 		this.des = JSONDeserializer.create();
+	}
+
+	public RemoteKB(URI datasource, CloseableHttpClient httpClient, Deserializer des) {
+		this.datasource = datasource;
+		this.cachingClient = httpClient;
+		this.des = des;
 	}
 
 	@Override
@@ -76,31 +85,9 @@ public class RemoteKB implements IKnowledgeBase {
 	}
 
 	private PrototypeWithAlternates fetch(URI uri) {
-		HttpCacheContext context = HttpCacheContext.create();
 		HttpGet httpget = new HttpGet(uri);
-		try (CloseableHttpResponse response = this.cachingClient.execute(httpget, context)) {
-			// CacheResponseStatus responseStatus =
-			// context.getCacheResponseStatus();
-			// switch (responseStatus) {
-			// case CACHE_HIT:
-			// System.out.println("A response was generated from the cache with
-			// " + "no requests sent upstream");
-			// break;
-			// case CACHE_MODULE_RESPONSE:
-			// System.out.println("The response was generated directly by the "
-			// + "caching module");
-			// break;
-			// case CACHE_MISS:
-			// System.out.println("The response came from an upstream server");
-			// break;
-			// case VALIDATED:
-			// System.out.println("The response was generated from the cache " +
-			// "after validating the entry with the origin server");
-			// break;
-			// }
-
+		try (CloseableHttpResponse response = this.cachingClient.execute(httpget)) {
 			// parse link headers to search for alternates
-
 			Set<URI> alternates = new HashSet<>();
 			for (Header linkHeader : response.getHeaders("Link")) {
 				try {
@@ -114,6 +101,8 @@ public class RemoteKB implements IKnowledgeBase {
 			return new PrototypeWithAlternates(prot, alternates);
 		} catch (IOException | ParseException e) {
 			throw new RuntimeException(e);
+		} finally {
+			httpget.reset();
 		}
 	}
 

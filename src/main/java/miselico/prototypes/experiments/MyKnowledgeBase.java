@@ -1,4 +1,4 @@
-package miselico.prototypes.knowledgebase.experiments;
+package miselico.prototypes.experiments;
 
 import java.util.Optional;
 

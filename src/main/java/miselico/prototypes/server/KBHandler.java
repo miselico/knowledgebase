@@ -26,6 +26,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
 import miselico.prototypes.knowledgebase.ID;
+import miselico.prototypes.knowledgebase.IFPKnowledgeBase;
 import miselico.prototypes.knowledgebase.IKnowledgeBase;
 import miselico.prototypes.knowledgebase.Prototype;
 import miselico.prototypes.serializers.Serializer;
@@ -46,6 +47,7 @@ public class KBHandler extends AbstractHandler {
 	private final IKnowledgeBase kb;
 	private final Function<ID, Long> timeoutF;
 	private final Multimap<ID, URI> seeAlsoMap;
+	private final Function<ID, Prototype> fpcomp;
 
 	public KBHandler(IKnowledgeBase kb, Function<ID, Long> timeoutF) {
 		this(kb, timeoutF, ImmutableMultimap.of());
@@ -55,6 +57,11 @@ public class KBHandler extends AbstractHandler {
 		this.kb = kb;
 		this.timeoutF = timeoutF;
 		this.seeAlsoMap = seeAlsoMap;
+		if (kb instanceof IFPKnowledgeBase) {
+			this.fpcomp = id -> ((IFPKnowledgeBase) kb).computeFixPoint(id);
+		} else {
+			this.fpcomp = null;
+		}
 	}
 
 	private final Cache<String, Prototype> ETagCache = CacheBuilder.newBuilder().maximumSize(10000).build();
@@ -84,24 +91,37 @@ public class KBHandler extends AbstractHandler {
 			}
 			IDs.add(id);
 		}
-		List<Prototype> prototypes = new ArrayList<>();
-		long minTimeout = Long.MAX_VALUE;
-		for (ID id : IDs) {
-			Optional<? extends Prototype> optPrototype = this.kb.isDefined(id);
-			if (!optPrototype.isPresent()) {
-				response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-				return;
-			}
-			prototypes.add(optPrototype.get());
-			long timeout = this.timeoutF.apply(id);
-			if (minTimeout > timeout) {
-				minTimeout = timeout;
-			}
-		}
 
-		// set cache time out
-		if (minTimeout > 0) {
-			response.setHeader("Cache-Control", "public, max-age=" + minTimeout);
+		List<Prototype> prototypes = new ArrayList<>();
+		if ((this.fpcomp == null) || (request.getParameter("fp") == null) || !request.getParameter("fp").equals("true")) {
+			long minTimeout = Long.MAX_VALUE;
+			for (ID id : IDs) {
+				Optional<? extends Prototype> optPrototype = this.kb.isDefined(id);
+				if (!optPrototype.isPresent()) {
+					response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+					return;
+				}
+
+				prototypes.add(optPrototype.get());
+				long timeout = this.timeoutF.apply(id);
+				if (minTimeout > timeout) {
+					minTimeout = timeout;
+				}
+			}
+			// set cache time out
+			if (minTimeout > 0) {
+				response.setHeader("Cache-Control", "public, max-age=" + minTimeout);
+			}
+		} else {
+			// get fixpoints.
+			for (ID id : IDs) {
+				Optional<? extends Prototype> optPrototype = this.kb.isDefined(id);
+				if (!optPrototype.isPresent()) {
+					response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+					return;
+				}
+				prototypes.add(this.fpcomp.apply(id));
+			}
 		}
 		try (OutputStreamWriter out = new OutputStreamWriter(response.getOutputStream(), StandardCharsets.UTF_8)) {
 			if (prototypes.size() == 1) {

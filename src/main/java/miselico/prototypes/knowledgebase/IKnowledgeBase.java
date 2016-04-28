@@ -1,8 +1,6 @@
 package miselico.prototypes.knowledgebase;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * The interface which every knowledge base implementation must implement.

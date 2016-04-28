@@ -20,7 +20,7 @@ import com.google.common.collect.ImmutableMap;
  * @author michael
  *
  */
-public class KnowledgeBase implements IKnowledgeBase {
+public class KnowledgeBase implements IFPKnowledgeBase {
 
 	public final ImmutableMap<ID, PrototypeDefinition> KB;
 	private final IKnowledgeBase external;
@@ -133,6 +133,7 @@ public class KnowledgeBase implements IKnowledgeBase {
 		return "KnowledgeBase [KB=" + this.KB + "]";
 	}
 
+	@Override
 	public Prototype computeFixPoint(ID id) {
 		Optional<? extends Prototype> ooriginal = this.isDefined(id);
 		Preconditions.checkArgument(ooriginal.isPresent());

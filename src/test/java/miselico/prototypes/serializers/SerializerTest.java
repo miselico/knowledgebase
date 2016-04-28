@@ -14,6 +14,7 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
 
+import miselico.prototypes.experiments.MyKnowledgeBase;
 import miselico.prototypes.knowledgebase.ID;
 import miselico.prototypes.knowledgebase.KnowledgeBase;
 import miselico.prototypes.knowledgebase.Property;
@@ -21,7 +22,6 @@ import miselico.prototypes.knowledgebase.Prototype;
 import miselico.prototypes.knowledgebase.PrototypeDefinition;
 import miselico.prototypes.knowledgebase.Prototypes;
 import miselico.prototypes.knowledgebase.Prototypes.Builder;
-import miselico.prototypes.knowledgebase.experiments.MyKnowledgeBase;
 
 public abstract class SerializerTest {
 

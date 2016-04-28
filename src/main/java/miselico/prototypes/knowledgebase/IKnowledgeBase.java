@@ -1,6 +1,8 @@
 package miselico.prototypes.knowledgebase;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * The interface which every knowledge base implementation must implement.
@@ -17,7 +19,9 @@ public interface IKnowledgeBase {
 	 * Every knowledge base must support concurrent reads.
 	 * 
 	 * @param id
-	 * @return
+	 *            The ID of the prototype
+	 * @return An Optional containing the prototype if it was defined in this
+	 *         knowledge base.
 	 */
 	public Optional<? extends Prototype> isDefined(ID id);
 }

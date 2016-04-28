@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableMap;
 
@@ -130,6 +131,26 @@ public class KnowledgeBase implements IKnowledgeBase {
 	@Override
 	public String toString() {
 		return "KnowledgeBase [KB=" + this.KB + "]";
+	}
+
+	public Prototype computeFixPoint(ID id) {
+		Optional<? extends Prototype> ooriginal = this.isDefined(id);
+		Preconditions.checkArgument(ooriginal.isPresent());
+		Prototype original = ooriginal.get();
+		Deque<Prototype> branch = new LinkedList<Prototype>();
+		Prototype current = original;
+		while (!(Prototype.P_0.equals(current.id))) {
+			branch.addFirst(current);
+			current = this.isDefined(current.def.parent).get();
+		}
+		MutableChangeSet fixpointAdd = new MutableChangeSet();
+		for (Prototype prototype : branch) {
+			prototype.def.remove.removeFrom(fixpointAdd);
+			prototype.def.add.addTo(fixpointAdd);
+		}
+		AddChangeSet addCS = AddChangeSet.fromMutable(fixpointAdd);
+		PrototypeDefinition def = PrototypeDefinition.create(Prototype.P_0, RemoveChangeSet.empty(), addCS);
+		return new Prototype(original.id, def);
 	}
 
 	public KnowledgeBase computeFixPoint() {

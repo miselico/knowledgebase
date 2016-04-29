@@ -16,6 +16,15 @@ import miselico.prototypes.experiments.MyKnowledgeBase;
 import miselico.prototypes.knowledgebase.ID;
 import miselico.prototypes.knowledgebase.KnowledgeBase;
 
+/**
+ * One possible way of serving prototypes. In concrete deployment the
+ * administrator can setup a specific Jetty configuration as desired.
+ * 
+ * This setup is only for experimentation and shuts down after two minutes.
+ * 
+ * @author michael
+ *
+ */
 public class StartServer {
 
 	private static final int UPTIMEMINUTES = 2;
@@ -42,7 +51,6 @@ public class StartServer {
 		try {
 			Thread.sleep(StartServer.UPTIMEMINUTES * 60 * 1000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		System.out.println("Stopping server after " + StartServer.UPTIMEMINUTES + " minute(s).");

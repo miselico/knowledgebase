@@ -7,6 +7,12 @@ import miselico.prototypes.knowledgebase.AddChangeSet.Builder;
 import miselico.prototypes.knowledgebase.ID;
 import miselico.prototypes.knowledgebase.Property;
 
+/**
+ * Joins two {@link AddChangeSet}s by taking their union them.
+ * 
+ * @author michael
+ *
+ */
 public class UnionAdd implements AddStrategy {
 
 	@Override

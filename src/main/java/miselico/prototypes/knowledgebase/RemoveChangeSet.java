@@ -5,17 +5,27 @@ import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.SetMultimap;
 
+/**
+ * A {@link ChangeSet} used for removing {@link Property}s from a
+ * {@link Prototype}. An {@link RemoveChangeSet} is immutable and must be
+ * created using a {@link Builder}
+ * 
+ * @author michael
+ *
+ */
 public class RemoveChangeSet extends ChangeSet {
 
 	private final ImmutableSet<Property> removeAll;
 
 	private RemoveChangeSet(ImmutableSetMultimap<Property, ID> changes, ImmutableSet<Property> removeAll) {
 		super(changes);
+		Preconditions.checkNotNull(removeAll);
 		this.removeAll = removeAll;
 	}
 
@@ -49,10 +59,19 @@ public class RemoveChangeSet extends ChangeSet {
 		return true;
 	}
 
+	/**
+	 * Returns a {@link Builder} for creating an {@link RemoveChangeSet}.
+	 * 
+	 * @return a new {@link Builder}
+	 */
 	public static Builder builder() {
 		return new Builder();
 	}
 
+	/**
+	 * Get a human readable representation of this {@link RemoveChangeSet}. This
+	 * representation is subject to changes.
+	 */
 	@Override
 	public String toString() {
 		StringBuilder b = new StringBuilder();
@@ -81,6 +100,12 @@ public class RemoveChangeSet extends ChangeSet {
 		return b.toString();
 	}
 
+	/**
+	 * Remove the changes encoded in this {@link RemoveChangeSet} from the
+	 * {@link MutableChangeSet} mcs
+	 * 
+	 * @param mcs
+	 */
 	public void removeFrom(MutableChangeSet mcs) {
 		for (Property property : this.removeAll) {
 			mcs.changes.removeAll(property);
@@ -95,17 +120,39 @@ public class RemoveChangeSet extends ChangeSet {
 		return ImmutableSet.<Property> builder().addAll(super.affectsProperties()).addAll(this.removeAll).build();
 	}
 
+	/**
+	 * Get the properties for which this {@link RemoveChangeSet} will remove all
+	 * values.
+	 * 
+	 * @return
+	 */
 	public ImmutableSet<Property> getRemoveAll() {
 		return this.removeAll;
 	}
 
+	/**
+	 * A builder to create a {@link RemoveChangeSet} An instance can be obtained
+	 * using {@link RemoveChangeSet#builder()}
+	 * 
+	 * The builder supports fluent syntax.
+	 * 
+	 * @author michael
+	 *
+	 */
 	public static class Builder {
-		SetMultimap<Property, ID> rm = HashMultimap.create();
-		Set<Property> rmAll = new HashSet<Property>();
+		private final SetMultimap<Property, ID> rm = HashMultimap.create();
+		private final Set<Property> rmAll = new HashSet<Property>();
 
 		private Builder() {
 		}
 
+		/**
+		 * Remove also the {@link ID} id for the {@link Property} p
+		 * 
+		 * @param p
+		 * @param id
+		 * @return the builder
+		 */
 		public Builder andRemove(Property p, ID id) {
 			if (!this.rmAll.contains(p)) {
 				this.rm.put(p, id);
@@ -113,19 +160,32 @@ public class RemoveChangeSet extends ChangeSet {
 			return this;
 		}
 
+		/**
+		 * Remove all {@link ID}s for the {@link Property} p
+		 * 
+		 * @param p
+		 * @return the builder
+		 */
 		public Builder andRemoveAll(Property p) {
 			this.rm.removeAll(p);
 			this.rmAll.add(p);
 			return this;
 		}
 
+		/**
+		 * Build the {@link RemoveChangeSet}. The builder can still be used
+		 * after the build step.
+		 * 
+		 * @return The created {@link RemoveChangeSet} which is independent form
+		 *         the builder.
+		 */
 		public RemoveChangeSet build() {
 			return new RemoveChangeSet(ImmutableSetMultimap.copyOf(this.rm), ImmutableSet.copyOf(this.rmAll));
 		}
 	}
 
 	/**
-	 * An empty change set
+	 * An empty {@link RemoveChangeSet}
 	 * 
 	 * @return
 	 */

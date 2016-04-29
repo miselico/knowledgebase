@@ -1,68 +1,107 @@
 package miselico.prototypes.knowledgebase;
 
+/**
+ * A helper class for creating prototypes.
+ * 
+ * @author michael
+ *
+ */
 public class Prototypes {
 
-	// public static Prototype create(ID id, Prototype parent, RemoveChangeSet
-	// remove, AddChangeSet add) {
-	// return Prototype.create(id, parent.id, remove, add);
-	// }
-	//
-	// private static Prototype create(ID id, ID parent, RemoveChangeSet remove,
-	// AddChangeSet add) {
-	// Preconditions.checkNotNull(id);
-	// Preconditions.checkNotNull(parent);
-	// Preconditions.checkNotNull(remove);
-	// Preconditions.checkNotNull(add);
-	// Prototype p = new Prototype(id, parent, remove, add);
-	// Prototype previous = Prototype.allProtoTypes.put(id, p);
-	// if (previous != null) {
-	// System.err.println("A prototype was redefined. Was :" + previous + " now
-	// :" + p);
-	// }
-	// return p;
-	// }
-	//
-	// private static final Map<ID, Prototype> allProtoTypes;
-	//
-	// static {
-	// System.err.println("Currently all protoypes created are checked for
-	// uniqueness, this is a performance burden but helps ensure correctness.
-	// PredefinedKB Prototypes are cached, so could show up unregularly.");
-	// allProtoTypes = new HashMap<ID, Prototype>();
-	// }
-
+	/**
+	 * A builder for prototypes.
+	 * 
+	 * note that the baseID if given when the builder is created. The ID of the
+	 * new prototype is given in the end. The reason is that this way the
+	 * builder can be reused to construct multiple new prototypes.
+	 * 
+	 * The builder supports fluent syntax.
+	 * 
+	 * @author michael
+	 *
+	 */
 	public static class Builder {
 
 		private final RemoveChangeSet.Builder remove = RemoveChangeSet.builder();
 		private final AddChangeSet.Builder add = AddChangeSet.builder();
 		private final ID basePTID;
 
+		/**
+		 * Create a builder for a prototype with the given base ID
+		 * 
+		 * @param basePTID
+		 */
 		public Builder(ID basePTID) {
 			this.basePTID = basePTID;
 		}
 
+		/**
+		 * create a builder for a prototype with the ID of the basePT as its
+		 * base ID
+		 * 
+		 * @param basePT
+		 */
 		public Builder(Prototype basePT) {
 			this(basePT.id);
 		}
 
+		/**
+		 * Add the given {@link Property} and {@link ID} to the new prototype's
+		 * add set.
+		 * 
+		 * @param p
+		 * @param id
+		 * @return
+		 */
 		public Builder add(Property p, ID id) {
 			this.add.andAdd(p, id);
 			return this;
 		}
 
+		/**
+		 * Add the given {@link Property} and the {@link ID} of the
+		 * {@link Prototype} prot to the new prototype's add set.
+		 * 
+		 * @param p
+		 * @param id
+		 * @return
+		 */
 		public Builder add(Property p, Prototype prot) {
 			return this.add(p, prot.id);
 		}
 
+		/**
+		 * Add the given {@link Property} and {@link ID} to the new prototype's
+		 * remove set.
+		 * 
+		 * @param p
+		 * @param id
+		 * @return
+		 */
 		public Builder remove(Property p, ID id) {
 			this.remove.andRemove(p, id);
 			return this;
 		}
 
+		/**
+		 * Add the given {@link Property} and the {@link ID} of the
+		 * {@link Prototype} prot to the new prototype's remove set.
+		 * 
+		 * @param p
+		 * @param id
+		 * @return
+		 */
 		public Builder remove(Property p, Prototype prot) {
 			return this.remove(p, prot.id);
 		}
 
+		/**
+		 * Add the given {@link Property} to the new {@link Prototype}s
+		 * removeAll set.
+		 * 
+		 * @param p
+		 * @return
+		 */
 		public Builder removeAll(Property p) {
 			this.remove.andRemoveAll(p);
 			return this;
@@ -90,6 +129,14 @@ public class Prototypes {
 			return this.replace(p, prot.id);
 		}
 
+		/**
+		 * Builds the prototype with ID as its own ID.
+		 * 
+		 * This builder can still be used after building the first time.
+		 * 
+		 * @param ownID
+		 * @return
+		 */
 		public Prototype build(ID ownID) {
 			PrototypeDefinition def = PrototypeDefinition.create(this.basePTID, this.remove.build(), this.add.build());
 
@@ -98,14 +145,38 @@ public class Prototypes {
 
 	}
 
+	/**
+	 * Create a new builder with basePT as a base for the newly created
+	 * {@link Prototype}s
+	 * 
+	 * @param basePT
+	 * @return
+	 */
 	public static Builder builder(ID basePT) {
 		return new Builder(basePT);
 	}
 
+	/**
+	 * Create a new builder with the ID of basePT as a base for the newly
+	 * created {@link Prototype}s
+	 * 
+	 * @param basePT
+	 * @return
+	 */
 	public static Builder builder(Prototype basePT) {
 		return new Builder(basePT);
 	}
 
+	/**
+	 * Create a new prototype for the given components. A
+	 * {@link PrototypeDefinition} is created first.
+	 * 
+	 * @param id
+	 * @param parent
+	 * @param remove
+	 * @param add
+	 * @return
+	 */
 	public static Prototype create(ID id, Prototype parent, RemoveChangeSet remove, AddChangeSet add) {
 		return new Prototype(id, PrototypeDefinition.create(parent, remove, add));
 	}

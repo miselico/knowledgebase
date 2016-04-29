@@ -9,10 +9,25 @@ import miselico.prototypes.serializers.Serializer;
 import miselico.prototypes.serializers.json.GsonHelper.JSONPrototype;
 import miselico.prototypes.serializers.json.GsonHelper.JSONPrototypes;
 
+/**
+ * A {@link Serializer} which produces JSON which can be read using
+ * {@link JSONDeserializer}.
+ * 
+ * @author michael
+ *
+ */
 public class JSONSerializer implements Serializer {
 
+	/**
+	 * Currently this is implemented as a singleton because there is no state.
+	 */
 	private static JSONSerializer instance = new JSONSerializer();
 
+	/**
+	 * Create a {@link JSONSerializer}
+	 * 
+	 * @return
+	 */
 	public static JSONSerializer create() {
 		return JSONSerializer.instance;
 	}

@@ -11,7 +11,7 @@ import com.google.common.collect.ImmutableList;
 
 /**
  * This parser is tailored to our specific needs, namely finding the alternate
- * links from the HTTP Link header value. See:
+ * links from the HTTP Link header value.
  * 
  * @author michael
  * @see <a href=https://tools.ietf.org/html/rfc5988>https://tools.ietf.org/html/
@@ -28,10 +28,13 @@ public class LimitedLinkHeaderParser {
 	 */
 	public List<URI> parse(String headerValue) throws URISyntaxException {
 		Preconditions.checkNotNull(headerValue);
+		// A quick check to save on parsing
 		if (!headerValue.contains("alternate")) {
 			return ImmutableList.of();
 		}
 		List<URI> relAlt = new ArrayList<>();
+		// the variable names in this code reflect the naming used in the BNF in
+		// rfc5988
 		Iterable<String> link_values = LimitedLinkHeaderParser.commaSplitter.split(headerValue);
 		link_value: for (String link_value : link_values) {
 			if (!link_value.contains("alternate")) {
@@ -58,12 +61,11 @@ public class LimitedLinkHeaderParser {
 					} else {
 						// it might be a list of multiple relation types split
 						// by space, but then it must be quoted
-						if (!(relation_types.startsWith("\"") && relation_types.endsWith("\""))) {
-							throw new Error();
-						}
-						parts = LimitedLinkHeaderParser.relationTypesSplitter.splitToList(relation_types.substring(1, relation_types.length() - 2));
-						if (relation_types.contains("alternate")) {
-							relAlt.add(url);
+						if (relation_types.startsWith("\"") && relation_types.endsWith("\"")) {
+							parts = LimitedLinkHeaderParser.relationTypesSplitter.splitToList(relation_types.substring(1, relation_types.length() - 1));
+							if (parts.contains("alternate")) {
+								relAlt.add(url);
+							}
 						}
 					}
 					// https://tools.ietf.org/html/rfc5988#section-5.3

@@ -35,8 +35,24 @@ import miselico.prototypes.serializers.Deserializer;
 import miselico.prototypes.serializers.ParseException;
 import miselico.prototypes.serializers.json.JSONDeserializer;
 
+/**
+ * An {@link IKnowledgeBase} which interacts with a remote prototype knowledge
+ * base.
+ * 
+ * @author michael
+ *
+ */
 public class RemoteKB implements IKnowledgeBase {
 
+	/**
+	 * When a prototype is requested from a remote source, the remote source
+	 * might indicate several alternative locations from which a representation
+	 * of the prototype can be found. This class includes both the prototype and
+	 * the alternative locations
+	 * 
+	 * @author michael
+	 *
+	 */
 	public static class PrototypeWithAlternates extends Prototype {
 		private final ImmutableSet<URI> alt;
 
@@ -50,11 +66,23 @@ public class RemoteKB implements IKnowledgeBase {
 		}
 	}
 
+	/**
+	 * Only needed for debugging purposes. To see the content of the http
+	 * request on the wire.
+	 */
 	private static final boolean CONTENTCOMPRESSION = true;
 	private final CloseableHttpClient cachingClient;
 	private final URI datasource;
 	private final Deserializer des;
 
+	/**
+	 * Construct a {@link RemoteKB} with default httpclient and JSON
+	 * deserialization. The default httpclient support content compression,
+	 * multiple connections, reuse of connections, and implements caching.
+	 * 
+	 * @param datasource
+	 *            The location of the knowledge base.
+	 */
 	public RemoteKB(URI datasource) {
 		this.datasource = datasource;
 		CacheConfig cacheConfig = CacheConfig.custom().setMaxCacheEntries(1000).setMaxObjectSize(4096).build();
@@ -65,6 +93,14 @@ public class RemoteKB implements IKnowledgeBase {
 		this.des = JSONDeserializer.create();
 	}
 
+	/**
+	 * Construct a {@link RemoteKB} with the provided location, http client and
+	 * deserialization mechanism.
+	 * 
+	 * @param datasource
+	 * @param httpClient
+	 * @param des
+	 */
 	public RemoteKB(URI datasource, CloseableHttpClient httpClient, Deserializer des) {
 		this.datasource = datasource;
 		this.cachingClient = httpClient;

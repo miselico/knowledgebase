@@ -12,6 +12,13 @@ import miselico.prototypes.knowledgebase.Prototype;
 import miselico.prototypes.knowledgebase.PrototypeDefinition;
 import miselico.prototypes.serializers.Serializer;
 
+/**
+ * A {@link Serializer} which produces text which can be read using
+ * {@link SimpleDeserializer}.
+ * 
+ * @author michael
+ *
+ */
 public class SimpleSerializer implements Serializer {
 
 	@Override

@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import miselico.prototypes.knowledgebase.AddChangeSet;
 import miselico.prototypes.knowledgebase.ID;
+import miselico.prototypes.knowledgebase.IKnowledgeBase;
 import miselico.prototypes.knowledgebase.KnowledgeBase;
 import miselico.prototypes.knowledgebase.KnowledgeBase.Builder;
 import miselico.prototypes.knowledgebase.PredefinedKB;
@@ -12,6 +13,13 @@ import miselico.prototypes.knowledgebase.Prototype;
 import miselico.prototypes.knowledgebase.Prototypes;
 import miselico.prototypes.knowledgebase.RemoveChangeSet;
 
+/**
+ * Contains static method to create a simple example of a {@link IKnowledgeBase}
+ * and a main method with examples of how a Knowledgebase can be used.
+ * 
+ * @author michael
+ *
+ */
 public class MyKnowledgeBase {
 
 	private static final Property hasName = Property.of("http://example.com/#hasName");

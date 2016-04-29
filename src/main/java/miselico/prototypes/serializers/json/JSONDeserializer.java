@@ -10,10 +10,25 @@ import miselico.prototypes.serializers.ParseException;
 import miselico.prototypes.serializers.json.GsonHelper.JSONPrototype;
 import miselico.prototypes.serializers.json.GsonHelper.JSONPrototypes;
 
+/**
+ * A {@link Deserializer} which reads JSON produced by {@link JSONSerializer}
+ * and converts it back to {@link Prototype}s.
+ * 
+ * @author michael
+ *
+ */
 public class JSONDeserializer implements Deserializer {
 
+	/**
+	 * Currently this is implemented as a singleton because there is no state.
+	 */
 	private static JSONDeserializer instance = new JSONDeserializer();
 
+	/**
+	 * Create a {@link JSONSeserializer}
+	 * 
+	 * @return
+	 */
 	public static JSONDeserializer create() {
 		return JSONDeserializer.instance;
 	}

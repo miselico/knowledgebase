@@ -10,6 +10,12 @@ import miselico.prototypes.knowledgebase.Property;
 import miselico.prototypes.knowledgebase.RemoveChangeSet;
 import miselico.prototypes.knowledgebase.RemoveChangeSet.Builder;
 
+/**
+ * Joins two {@link RemoveChangeSet}s by intersecting them.
+ * 
+ * @author michael
+ *
+ */
 public class IntersectRem implements RemStrategy {
 
 	@Override

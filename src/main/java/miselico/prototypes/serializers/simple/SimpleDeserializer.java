@@ -17,6 +17,13 @@ import miselico.prototypes.knowledgebase.Prototypes.Builder;
 import miselico.prototypes.serializers.Deserializer;
 import miselico.prototypes.serializers.ParseException;
 
+/**
+ * A {@link Deserializer} which reads text produced by {@link SimpleSerializer}
+ * and converts it back to {@link Prototype}s.
+ * 
+ * @author michael
+ *
+ */
 public class SimpleDeserializer implements Deserializer {
 	private static final Splitter SPACESPLITTER = Splitter.on(' ').omitEmptyStrings().trimResults();
 

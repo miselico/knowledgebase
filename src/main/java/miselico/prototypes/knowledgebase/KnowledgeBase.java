@@ -17,6 +17,9 @@ import com.google.common.collect.ImmutableMap;
  * A KB is a set of prototypes which (when combined with the Predefined KB) is
  * closed. ie. All IDs are reachable.
  * 
+ * A {@link KnowledgeBase} is immutable. If you want to make changes to it, you
+ * have to create a new one using the {@link Builder}
+ * 
  * @author michael
  *
  */
@@ -42,6 +45,8 @@ public class KnowledgeBase implements IFPKnowledgeBase {
 	 *            the data in this knowledge base
 	 * @param external
 	 *            data defined externally
+	 * @throws Error
+	 *             in case the constructed knowledge base is not consistent.
 	 */
 	private KnowledgeBase(ImmutableMap<ID, PrototypeDefinition> kB, IKnowledgeBase external, boolean checkConsistency) {
 		this.KB = kB;
@@ -120,10 +125,20 @@ public class KnowledgeBase implements IFPKnowledgeBase {
 		return this.external.isDefined(id);
 	}
 
+	/**
+	 * get the map containing the actual prototype IDsand their definitions
+	 * 
+	 * @return
+	 */
 	public ImmutableMap<ID, PrototypeDefinition> prototypes() {
 		return this.KB;
 	}
 
+	/**
+	 * A collection contianing all prototype definitions
+	 * 
+	 * @return
+	 */
 	public ImmutableCollection<PrototypeDefinition> prototypeDefs() {
 		return this.KB.values();
 	}
@@ -154,6 +169,13 @@ public class KnowledgeBase implements IFPKnowledgeBase {
 		return new Prototype(original.id, def);
 	}
 
+	/**
+	 * Compute the fixpoint of every prototype in this {@link KnowledgeBase} and
+	 * returns the result as a new (independent) {@link KnowledgeBase}
+	 * 
+	 * @return A new knowledge base containing all prototypes of this knowledge
+	 *         base in fixpoint form.
+	 */
 	public KnowledgeBase computeFixPoint() {
 		Builder b = new Builder(this.external);
 		// this is optimized by re-using paths in the derivation.
@@ -196,6 +218,14 @@ public class KnowledgeBase implements IFPKnowledgeBase {
 		return b.build(false);
 	}
 
+	/**
+	 * Create a new empty knowledge base with the given {@link IKnowledgeBase}.
+	 * This is, for instance, useful for if you want to compute fixpoints in the
+	 * underlying {@link IKnowledgeBase}
+	 * 
+	 * @param external
+	 * @return
+	 */
 	public static KnowledgeBase empty(IKnowledgeBase external) {
 		return new KnowledgeBase(ImmutableMap.<ID, PrototypeDefinition> of(), external);
 	}
@@ -206,6 +236,8 @@ public class KnowledgeBase implements IFPKnowledgeBase {
 	/**
 	 * A builder to create a knowledge base. This is needed because during
 	 * construction things might be momentarily inconsistent.
+	 * 
+	 * The builder supports fluent syntax.
 	 * 
 	 * @author michael
 	 *
@@ -219,15 +251,35 @@ public class KnowledgeBase implements IFPKnowledgeBase {
 		private final Map<ID, PrototypeDefinition> prototypez;
 		private final IKnowledgeBase external;
 
+		/**
+		 * Create a builder for a {@link KnowledgeBase} based on the given
+		 * external {@link IKnowledgeBase}. If you have a {@link KnowledgeBase},
+		 * use the {@link Builder#Builder(KnowledgeBase)} constructor.
+		 * 
+		 * @param external
+		 */
 		public Builder(IKnowledgeBase external) {
 			this(KnowledgeBase.empty(external));
 		}
 
+		/**
+		 * Create a builder based on the given {@link KnowledgeBase}. This
+		 * specialization results in a more efficient {@link KnowledgeBase} as
+		 * the generic {@link Builder#Builder(IKnowledgeBase)} constructor.
+		 * 
+		 * @param base
+		 */
 		public Builder(KnowledgeBase base) {
 			this.prototypez = new HashMap<>(base.KB);
 			this.external = base.external;
 		}
 
+		/**
+		 * Add the given prototype to the {@link KnowledgeBase}
+		 * 
+		 * @param p
+		 * @return the builder.
+		 */
 		public Builder add(Prototype p) {
 			if (this.prototypez.containsKey(p.id) || this.external.isDefined(p.id).isPresent()) {
 				throw new Error("A prototype with ID " + p.id + " already exists.");
@@ -236,6 +288,15 @@ public class KnowledgeBase implements IFPKnowledgeBase {
 			return this;
 		}
 
+		/**
+		 * Remove the prototype with the given ID from this builder.
+		 * 
+		 * @param p
+		 * @return the builder itself
+		 * @throws Error
+		 *             in case the prototype with that ID is defined in the
+		 *             external {@link IKnowledgeBase}
+		 */
 		public Builder remove(ID p) {
 			if (this.external.isDefined(p).isPresent()) {
 				throw new Error("Cannot remove prototype with ID " + p + " because it is defined externally.");
@@ -255,10 +316,38 @@ public class KnowledgeBase implements IFPKnowledgeBase {
 			return this.prototypez.containsKey(p);
 		}
 
+		/**
+		 * Construct the {@link KnowledgeBase}, this also checks the
+		 * consistency. After a call to this constructor the builder can still
+		 * be used. The constructed {@link KnowledgeBase} is independent of the
+		 * builder.
+		 * 
+		 * @return The built {@link KnowledgeBase}
+		 * @throws Error
+		 *             in case the constructed knowledge base is not consistent.
+		 */
 		public KnowledgeBase build() {
 			return this.build(true);
 		}
 
+		/**
+		 * Construct the {@link KnowledgeBase}, this and checks the consistency
+		 * if checkConsistency is true. After a call to this constructor the
+		 * builder can still be used. The constructed {@link KnowledgeBase} is
+		 * independent of the builder.
+		 * 
+		 * This method is only used form within {@link KnowledgeBase} itself in
+		 * cases were is can be guaranteed that the {@link KnowledgeBase}
+		 * constructed is consistent.
+		 * 
+		 * @return The built {@link KnowledgeBase}
+		 * @throws Error
+		 *             in case checkConsistency was true and the constructed
+		 *             knowledge base is not consistent.
+		 * @param checkConsistency
+		 *            should consistency be checked
+		 * @return The constructed {@link KnowledgeBase}
+		 */
 		private KnowledgeBase build(boolean checkConsistency) {
 			return new KnowledgeBase(ImmutableMap.copyOf(this.prototypez), this.external, checkConsistency);
 		}

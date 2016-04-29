@@ -7,6 +7,13 @@ import miselico.prototypes.knowledgebase.Prototype;
 import miselico.prototypes.knowledgebase.PrototypeDefinition;
 import miselico.prototypes.knowledgebase.RemoveChangeSet;
 
+/**
+ * Joins two Prototypes together based on an {@link AddStrategy} and a
+ * {@link RemStrategy}.
+ * 
+ * @author michael
+ *
+ */
 public class JoinStrategy {
 	private final AddStrategy add;
 	private final RemStrategy rem;
@@ -16,6 +23,13 @@ public class JoinStrategy {
 		this.rem = rem;
 	}
 
+	/**
+	 * Joins the protoypes a and b together.
+	 * 
+	 * @param a
+	 * @param b
+	 * @return The joint prototype.
+	 */
 	public Prototype join(Prototype a, Prototype b) {
 		Preconditions.checkArgument(a.id.equals(b.id));
 		Preconditions.checkArgument(a.def.parent.equals(b.def.parent));

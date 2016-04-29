@@ -18,8 +18,20 @@ import miselico.prototypes.knowledgebase.Prototype;
 import miselico.prototypes.knowledgebase.Prototypes;
 import miselico.prototypes.knowledgebase.Prototypes.Builder;
 
+/**
+ * Package private class containing classes to help serializing prototypes to
+ * JSON using {@link Gson}.
+ * 
+ * The classes here are basically simple data containers used by reflection.
+ * 
+ * @author michael
+ *
+ */
 class GsonHelper {
 
+	/**
+	 * The {@link Gson} insance used for serialization and deserialization
+	 */
 	final static Gson gson = new Gson();
 
 	static class JSONPrototypes extends ArrayList<JSONPrototype> {

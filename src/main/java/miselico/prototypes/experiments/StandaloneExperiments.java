@@ -9,6 +9,12 @@ import com.google.common.base.Stopwatch;
 import miselico.prototypes.knowledgebase.KnowledgeBase;
 import miselico.prototypes.knowledgebase.PrototypeDefinition;
 
+/**
+ * Benchmarks for the standalone {@link KnowledgeBase} implementation.
+ * 
+ * @author michael
+ *
+ */
 public class StandaloneExperiments {
 
 	public static void main(String[] args) {

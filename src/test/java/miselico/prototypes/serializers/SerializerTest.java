@@ -67,7 +67,7 @@ public abstract class SerializerTest {
 		KnowledgeBase b = MyKnowledgeBase.getSomebase();
 		List<Prototype> protoOriginal = b.prototypes().entrySet().stream().map(e -> new Prototype(e.getKey(), e.getValue())).collect(Collectors.toList());
 		StringWriter w = new StringWriter();
-		this.ser.serialize(protoOriginal.iterator(), w);
+		this.ser.serialize(protoOriginal, w);
 		// System.out.println(w);
 		StringReader r = new StringReader(w.toString());
 		List<Prototype> protoResult = this.deser.deserialize(r);
@@ -89,7 +89,7 @@ public abstract class SerializerTest {
 	@Test
 	public void testSerializeMany() throws IOException, ParseException {
 
-		for (int i = 1; i < 10000; i++) {
+		for (int i = 1; i < 100; i++) {
 			Builder builder = Prototypes.builder(ID.of("http://example.com#soMany" + i));
 			for (int j = 0; j < 10; j++) {
 				builder.add(Property.of("http://example.com#prop" + (j % 3)), ID.of("http://example.com#val" + j));
@@ -99,7 +99,7 @@ public abstract class SerializerTest {
 			}
 			Prototype prot = builder.build(ID.of("http://example.com#soMany" + (i - 1)));
 			StringWriter w = new StringWriter();
-			this.ser.serialize(ImmutableList.of(prot).iterator(), w);
+			this.ser.serialize(ImmutableList.of(prot), w);
 			StringReader r = new StringReader(w.toString());
 			Collection<Prototype> protCol = this.deser.deserialize(r);
 			Assert.assertEquals(protCol.size(), 1);

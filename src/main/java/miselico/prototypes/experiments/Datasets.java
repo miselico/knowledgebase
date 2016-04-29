@@ -14,6 +14,11 @@ import miselico.prototypes.knowledgebase.Prototype;
 import miselico.prototypes.knowledgebase.Prototypes;
 import miselico.prototypes.knowledgebase.Prototypes.Builder;
 
+/**
+ * Methods for the creation of synthetic datasets for experiments.
+ * 
+ * @author michael
+ */
 public class Datasets {
 
 	public static KnowledgeBase.Builder idealCase(int n) {

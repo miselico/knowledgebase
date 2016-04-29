@@ -2,10 +2,15 @@ package miselico.prototypes.knowledgebase;
 
 import com.google.common.base.Preconditions;
 
+/**
+ * This class represents the prototype definition. A definition consists of the
+ * base {@link ID}, an {@link AddChangeSet} and a {@link RemoveChangeSet}.
+ * 
+ * @author michael
+ *
+ */
 public class PrototypeDefinition {
 
-	// If this gets ever changed to Prototype, there should be a thorough check
-	// for equals wherever parent is used.
 	public final ID parent;
 	public final RemoveChangeSet remove;
 	public final AddChangeSet add;
@@ -16,10 +21,28 @@ public class PrototypeDefinition {
 		this.add = add;
 	}
 
+	/**
+	 * Equivalent to
+	 * {@link PrototypeDefinition#create(ID, RemoveChangeSet, AddChangeSet)},
+	 * but the ID is taken from the provided prototype.
+	 * 
+	 * @param parent
+	 * @param remove
+	 * @param add
+	 * @return
+	 */
 	public static PrototypeDefinition create(Prototype parent, RemoveChangeSet remove, AddChangeSet add) {
 		return PrototypeDefinition.create(parent.id, remove, add);
 	}
 
+	/**
+	 * Create a {@link PrototypeDefinition} with the given components.
+	 * 
+	 * @param parent
+	 * @param remove
+	 * @param add
+	 * @return
+	 */
 	public static PrototypeDefinition create(ID parent, RemoveChangeSet remove, AddChangeSet add) {
 		Preconditions.checkNotNull(parent);
 		Preconditions.checkNotNull(remove);
@@ -28,6 +51,9 @@ public class PrototypeDefinition {
 		return p;
 	}
 
+	/**
+	 * The prototype definition of the empty prototype.
+	 */
 	public static final PrototypeDefinition P_0;
 
 	static {

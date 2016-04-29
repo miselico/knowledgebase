@@ -7,6 +7,12 @@ import miselico.prototypes.knowledgebase.Property;
 import miselico.prototypes.knowledgebase.RemoveChangeSet;
 import miselico.prototypes.knowledgebase.RemoveChangeSet.Builder;
 
+/**
+ * Joins two {@link RemoveChangeSet}s by taking their union them.
+ * 
+ * @author michael
+ *
+ */
 public class UnionRemove implements RemStrategy {
 
 	@Override

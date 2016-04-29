@@ -85,7 +85,7 @@ public class PredefinedKB implements IKnowledgeBase {
 	/**
 	 * A knowledge base only containing the integers.
 	 */
-	public static class integers implements IKnowledgeBase {
+	public static final class integers implements IKnowledgeBase {
 		private integers() {
 		}
 
@@ -135,7 +135,7 @@ public class PredefinedKB implements IKnowledgeBase {
 	/**
 	 * A knowledge base only containing the strings.
 	 */
-	public static class strings implements IKnowledgeBase {
+	public static final class strings implements IKnowledgeBase {
 		private strings() {
 			// TODO Auto-generated constructor stub
 		}

@@ -17,7 +17,7 @@ import miselico.prototypes.serializers.json.GsonHelper.JSONPrototypes;
  * @author michael
  *
  */
-public class JSONDeserializer implements Deserializer {
+public final class JSONDeserializer implements Deserializer {
 
 	/**
 	 * Currently this is implemented as a singleton because there is no state.

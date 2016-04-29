@@ -9,7 +9,7 @@ import com.google.common.base.Preconditions;
  * @author michael
  *
  */
-public class PrototypeDefinition {
+public final class PrototypeDefinition {
 
 	public final ID parent;
 	public final RemoveChangeSet remove;

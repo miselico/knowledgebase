@@ -15,7 +15,11 @@ import miselico.prototypes.knowledgebase.PrototypeDefinition;
  * @author michael
  *
  */
-public class StandaloneExperiments {
+public final class StandaloneExperiments {
+
+	private StandaloneExperiments() {
+		// utility class
+	}
 
 	public static void main(String[] args) {
 		for (int n : new int[] { 19, 20, 21 }) {

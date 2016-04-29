@@ -17,5 +17,5 @@ public interface IFPKnowledgeBase extends IKnowledgeBase {
 	 * @throws IllegalArgumentException
 	 *             If the id is not in the {@link IKnowledgeBase}
 	 */
-	public Prototype computeFixPoint(ID id);
+	Prototype computeFixPoint(ID id);
 }

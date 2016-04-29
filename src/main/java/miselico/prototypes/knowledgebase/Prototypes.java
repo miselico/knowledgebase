@@ -6,7 +6,11 @@ package miselico.prototypes.knowledgebase;
  * @author michael
  *
  */
-public class Prototypes {
+public final class Prototypes {
+
+	private Prototypes() {
+		// utility class
+	}
 
 	/**
 	 * A builder for prototypes.

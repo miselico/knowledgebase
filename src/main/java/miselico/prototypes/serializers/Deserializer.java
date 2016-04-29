@@ -26,7 +26,7 @@ public interface Deserializer {
 	 *             if the serialized stream could not be interpreted as a stream
 	 *             of prototypes.
 	 */
-	public Prototype deserializeOne(Reader reader) throws IOException, ParseException;
+	Prototype deserializeOne(Reader reader) throws IOException, ParseException;
 
 	/**
 	 * Deserialize all prototypes from the given {@link Reader}.
@@ -41,5 +41,5 @@ public interface Deserializer {
 	 *             if the serialized stream could not be interpreted as a
 	 *             collection of prototypes.
 	 */
-	public List<Prototype> deserialize(Reader reader) throws IOException, ParseException;
+	List<Prototype> deserialize(Reader reader) throws IOException, ParseException;
 }

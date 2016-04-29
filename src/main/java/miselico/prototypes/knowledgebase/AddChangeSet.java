@@ -13,7 +13,7 @@ import miselico.prototypes.joiners.AddStrategy;
  * @author michael
  *
  */
-public class AddChangeSet extends ChangeSet {
+public final class AddChangeSet extends ChangeSet {
 
 	private AddChangeSet(ImmutableSetMultimap<Property, ID> changes) {
 		super(changes);
@@ -69,7 +69,7 @@ public class AddChangeSet extends ChangeSet {
 	 * @author michael
 	 *
 	 */
-	public static class Builder {
+	public static final class Builder {
 		SetMultimap<Property, ID> add = HashMultimap.create();
 
 		private Builder() {

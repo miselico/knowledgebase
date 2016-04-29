@@ -29,10 +29,14 @@ import miselico.prototypes.knowledgebase.Prototypes.Builder;
  */
 class GsonHelper {
 
+	private GsonHelper() {
+		// Utility class
+	}
+
 	/**
 	 * The {@link Gson} insance used for serialization and deserialization
 	 */
-	final static Gson gson = new Gson();
+	static final Gson gson = new Gson();
 
 	static class JSONPrototypes extends ArrayList<JSONPrototype> {
 
@@ -64,7 +68,7 @@ class GsonHelper {
 		private JSONPrototype() {
 		}
 
-		public JSONPrototype(Prototype p) {
+		JSONPrototype(Prototype p) {
 			this.id = p.id.toString();
 			this.base = p.def.parent.toString();
 			HashMultimap<String, String> addtmp = HashMultimap.create();

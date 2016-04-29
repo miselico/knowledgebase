@@ -25,7 +25,11 @@ import miselico.prototypes.knowledgebase.KnowledgeBase;
  * @author michael
  *
  */
-public class StartServer {
+public final class StartServer {
+
+	private StartServer() {
+		// utility class
+	}
 
 	private static final int UPTIMEMINUTES = 2;
 

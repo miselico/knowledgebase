@@ -16,7 +16,7 @@ import miselico.prototypes.serializers.json.GsonHelper.JSONPrototypes;
  * @author michael
  *
  */
-public class JSONSerializer implements Serializer {
+public final class JSONSerializer implements Serializer {
 
 	/**
 	 * Currently this is implemented as a singleton because there is no state.

@@ -22,6 +22,10 @@ import miselico.prototypes.knowledgebase.RemoveChangeSet;
  */
 public class MyKnowledgeBase {
 
+	private MyKnowledgeBase() {
+		// utility class
+	}
+
 	private static final Property hasName = Property.of("http://example.com/#hasName");
 	private static final Property livesIn = Property.of("http://example.com/#livesIn");
 

@@ -21,5 +21,5 @@ public interface IKnowledgeBase {
 	 * @return An Optional containing the prototype if it was defined in this
 	 *         knowledge base.
 	 */
-	public Optional<? extends Prototype> isDefined(ID id);
+	Optional<? extends Prototype> isDefined(ID id);
 }

@@ -155,7 +155,7 @@ public class KnowledgeBase implements IFPKnowledgeBase {
 		Prototype original = ooriginal.get();
 		Deque<Prototype> branch = new LinkedList<Prototype>();
 		Prototype current = original;
-		while (!(Prototype.P_0.equals(current.id))) {
+		while (!(Prototype.P_0.id.equals(current.id))) {
 			branch.addFirst(current);
 			current = this.isDefined(current.def.parent).get();
 		}
@@ -340,13 +340,12 @@ public class KnowledgeBase implements IFPKnowledgeBase {
 		 * cases were is can be guaranteed that the {@link KnowledgeBase}
 		 * constructed is consistent.
 		 * 
-		 * @return The built {@link KnowledgeBase}
+		 * @return The constructed {@link KnowledgeBase}
 		 * @throws Error
 		 *             in case checkConsistency was true and the constructed
 		 *             knowledge base is not consistent.
 		 * @param checkConsistency
 		 *            should consistency be checked
-		 * @return The constructed {@link KnowledgeBase}
 		 */
 		private KnowledgeBase build(boolean checkConsistency) {
 			return new KnowledgeBase(ImmutableMap.copyOf(this.prototypez), this.external, checkConsistency);

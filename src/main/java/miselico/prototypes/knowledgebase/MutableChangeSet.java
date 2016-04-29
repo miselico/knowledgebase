@@ -21,12 +21,12 @@ class MutableChangeSet {
 	/**
 	 * The changes of the changeset
 	 */
-	public final Multimap<Property, ID> changes;
+	final Multimap<Property, ID> changes;
 
 	/**
 	 * Create an empty {@link MutableChangeSet}
 	 */
-	public MutableChangeSet() {
+	MutableChangeSet() {
 		this.changes = HashMultimap.create();
 	}
 
@@ -38,7 +38,7 @@ class MutableChangeSet {
 	 *            the initial changes to be added to this set. The set will be
 	 *            copied.
 	 */
-	public MutableChangeSet(Multimap<Property, ID> source) {
+	MutableChangeSet(Multimap<Property, ID> source) {
 		this.changes = HashMultimap.create(source);
 	}
 

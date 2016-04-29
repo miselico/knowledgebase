@@ -19,7 +19,11 @@ import miselico.prototypes.knowledgebase.Prototypes.Builder;
  * 
  * @author michael
  */
-public class Datasets {
+public final class Datasets {
+
+	private Datasets() {
+		// utility class
+	}
 
 	public static KnowledgeBase.Builder idealCase(int n) {
 		int layers = n + 1;

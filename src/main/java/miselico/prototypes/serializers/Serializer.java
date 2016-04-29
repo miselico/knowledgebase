@@ -24,7 +24,7 @@ public interface Serializer {
 	 * @throws IOException
 	 *             if the Writer throws an exception in the process.
 	 */
-	public void serialize(Iterator<Prototype> ps, Writer to) throws IOException;
+	void serialize(Iterator<Prototype> ps, Writer to) throws IOException;
 
 	/**
 	 * Serialize all prototypes of the given {@link Iterable} to the writer.
@@ -36,7 +36,7 @@ public interface Serializer {
 	 * @throws IOException
 	 *             if the Writer throws an exception in the process.
 	 */
-	public default void serialize(Iterable<Prototype> ps, Writer to) throws IOException {
+	default void serialize(Iterable<Prototype> ps, Writer to) throws IOException {
 		this.serialize(ps.iterator(), to);
 	}
 
@@ -52,5 +52,5 @@ public interface Serializer {
 	 * @param to
 	 * @throws IOException
 	 */
-	public void serializeOne(Prototype p, Writer to) throws IOException;
+	void serializeOne(Prototype p, Writer to) throws IOException;
 }

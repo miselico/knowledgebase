@@ -80,11 +80,11 @@ public class RemoteKB implements IKnowledgeBase {
 	 * deserialization. The default httpclient support content compression,
 	 * multiple connections, reuse of connections, and implements caching.
 	 * 
-	 * @param datasource
+	 * @param location
 	 *            The location of the knowledge base.
 	 */
-	public RemoteKB(URI datasource) {
-		this.datasource = datasource;
+	public RemoteKB(URI location) {
+		this.datasource = location;
 		CacheConfig cacheConfig = CacheConfig.custom().setMaxCacheEntries(1000).setMaxObjectSize(4096).build();
 		RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(30000).setSocketTimeout(30000).setCookieSpec(CookieSpecs.IGNORE_COOKIES).setContentCompressionEnabled(RemoteKB.CONTENTCOMPRESSION).build();
 		PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();

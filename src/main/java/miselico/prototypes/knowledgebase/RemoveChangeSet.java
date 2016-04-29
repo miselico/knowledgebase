@@ -19,7 +19,7 @@ import com.google.common.collect.SetMultimap;
  * @author michael
  *
  */
-public class RemoveChangeSet extends ChangeSet {
+public final class RemoveChangeSet extends ChangeSet {
 
 	private final ImmutableSet<Property> removeAll;
 
@@ -139,7 +139,7 @@ public class RemoveChangeSet extends ChangeSet {
 	 * @author michael
 	 *
 	 */
-	public static class Builder {
+	public static final class Builder {
 		private final SetMultimap<Property, ID> rm = HashMultimap.create();
 		private final Set<Property> rmAll = new HashSet<Property>();
 

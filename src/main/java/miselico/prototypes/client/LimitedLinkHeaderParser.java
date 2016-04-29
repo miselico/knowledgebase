@@ -23,6 +23,7 @@ public class LimitedLinkHeaderParser {
 	 * Returns an immutable list of URIs which have the rel=alternate relation.
 	 * 
 	 * @param headerValue
+	 *            the Value of the header.
 	 * @return The list of URIs
 	 * @throws URISyntaxException
 	 */

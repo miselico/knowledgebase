@@ -12,7 +12,7 @@ import java.util.Optional;
  * @author michael
  *
  */
-public class ChainedKB implements IKnowledgeBase {
+public final class ChainedKB implements IKnowledgeBase {
 
 	/**
 	 * Constructs a {@link ChainedKB} from the given bases.

@@ -1,5 +1,8 @@
 package miselico.prototypes.knowledgebase;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.apache.abdera.i18n.iri.IRI;
 import org.apache.abdera.i18n.iri.IRISyntaxException;
 
@@ -28,7 +31,18 @@ public class ID {
 	 *             if the iri is not absolute
 	 */
 	public static ID of(String value) throws IRISyntaxException {
-		return new ID(new IRI(value));
+		// creating a URI type is about three times faster as a IRI type, so we
+		// try that first
+		// This might be implementation dependent.
+
+		String uriString;
+		try {
+			URI uri = new URI(value);
+			uriString = uri.toString();
+		} catch (URISyntaxException e) {
+			uriString = new IRI(value).toString();
+		}
+		return new ID(uriString);
 	}
 
 	/**
@@ -42,8 +56,38 @@ public class ID {
 	 */
 	public ID(IRI iri) {
 		Preconditions.checkNotNull(iri);
-		Preconditions.checkArgument(iri.isAbsolute(), "Only absolute URIs are valid IDs");
+		Preconditions.checkArgument(iri.isAbsolute(), "Only absolute IRIs are valid IDs");
 		this.value = iri.toString();
+	}
+
+	/**
+	 * Constructs an ID from the URI
+	 * 
+	 * @param uri
+	 * @throws NullPointerException
+	 *             if uri is null
+	 * @throws IllegalArgumentException
+	 *             if the uri is not absolute
+	 */
+	public ID(URI uri) {
+		Preconditions.checkNotNull(uri);
+		Preconditions.checkArgument(uri.isAbsolute(), "Only absolute IRIs are valid IDs");
+		this.value = uri.toString();
+	}
+
+	/**
+	 * Constructs an ID from a String. This is private because the String value
+	 * is not checked.
+	 * 
+	 * @param uri
+	 * @throws NullPointerException
+	 *             if uri is null
+	 * @throws IllegalArgumentException
+	 *             if the uri is not absolute
+	 */
+	private ID(String uriString) {
+		Preconditions.checkNotNull(uriString);
+		this.value = uriString;
 	}
 
 	/**

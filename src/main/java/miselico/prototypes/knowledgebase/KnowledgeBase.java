@@ -4,6 +4,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -279,12 +280,29 @@ public class KnowledgeBase implements IFPKnowledgeBase {
 		 * 
 		 * @param p
 		 * @return the builder.
+		 * @throws Error
+		 *             in case the given prototype is already defined.
 		 */
 		public Builder add(Prototype p) {
 			if (this.prototypez.containsKey(p.id) || this.external.isDefined(p.id).isPresent()) {
 				throw new Error("A prototype with ID " + p.id + " already exists.");
 			}
 			this.prototypez.put(p.id, p.def);
+			return this;
+		}
+
+		/**
+		 * Add the given prototypes to the {@link KnowledgeBase}
+		 * 
+		 * @param p
+		 * @return the builder.
+		 * @throws Error
+		 *             in case the given prototype is already defined.
+		 */
+		public Builder addAll(List<Prototype> protos) {
+			for (Prototype prototype : protos) {
+				this.add(prototype);
+			}
 			return this;
 		}
 
@@ -350,7 +368,6 @@ public class KnowledgeBase implements IFPKnowledgeBase {
 		private KnowledgeBase build(boolean checkConsistency) {
 			return new KnowledgeBase(ImmutableMap.copyOf(this.prototypez), this.external, checkConsistency);
 		}
-
 	}
 
 	/**

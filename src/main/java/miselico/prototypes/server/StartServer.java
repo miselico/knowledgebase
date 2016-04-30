@@ -1,8 +1,13 @@
 package miselico.prototypes.server;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
-import org.apache.http.client.utils.URIBuilder;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.DefaultHandler;
@@ -12,15 +17,23 @@ import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-import miselico.prototypes.experiments.MyKnowledgeBase;
 import miselico.prototypes.knowledgebase.ID;
+import miselico.prototypes.knowledgebase.IKnowledgeBase;
 import miselico.prototypes.knowledgebase.KnowledgeBase;
+import miselico.prototypes.knowledgebase.KnowledgeBase.Builder;
+import miselico.prototypes.knowledgebase.PredefinedKB;
+import miselico.prototypes.knowledgebase.Prototype;
+import miselico.prototypes.serializers.simple.SimpleDeserializer;
+import miselico.prototypes.serializers.simple.SimpleSerializer;
 
 /**
  * One possible way of serving prototypes. In concrete deployment the
  * administrator can setup a specific Jetty configuration as desired.
  * 
- * This setup is only for experimentation and shuts down after two minutes.
+ * When run, specify a file with serialized prototypes ( Using
+ * {@link SimpleSerializer}) . If no file is specified, a small example
+ * knowledge base is loaded.
+ * 
  * 
  * @author michael
  *
@@ -31,16 +44,32 @@ public final class StartServer {
 		// utility class
 	}
 
-	private static final int UPTIMEMINUTES = 2;
-
+	/**
+	 * One possible way of serving prototypes. In concrete deployment the
+	 * administrator can setup a specific Jetty configuration as desired.
+	 * 
+	 * When run, specify a file with serialized prototypes. If no file is
+	 * specified, a small example knowledge base is loaded.
+	 * 
+	 * @param args
+	 *            The first argument can be a filename of serialized prototypes.
+	 * @throws Exception
+	 */
 	public static void main(String[] args) throws Exception {
-		KnowledgeBase base = MyKnowledgeBase.getSomebase();
-
-		Multimap<ID, URI> seeAlsoMap = HashMultimap.create();
-		for (ID id : base.KB.keySet()) {
-			seeAlsoMap.put(id, new URIBuilder("https://www.google.com/search").addParameter("q", id.toString()).build());
-			seeAlsoMap.put(id, new URIBuilder("https://search.yahoo.com/search").addParameter("p", id.toString()).build());
+		InputStream input;
+		if (args.length < 1) {
+			input = StartServer.class.getResourceAsStream("exampleKB.proto");
+		} else {
+			String filename = args[0];
+			input = new FileInputStream(new File(filename));
 		}
+		IKnowledgeBase base;
+		try (InputStreamReader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
+			List<Prototype> protos = new SimpleDeserializer().deserialize(reader);
+			Builder builder = new KnowledgeBase.Builder(PredefinedKB.kb);
+			base = builder.addAll(protos).build();
+		}
+		Multimap<ID, URI> seeAlsoMap = HashMultimap.create();
 
 		KBHandler kbhandler = new KBHandler(base, x -> 300L, seeAlsoMap);
 
@@ -52,12 +81,6 @@ public final class StartServer {
 		Server server = new Server(8080);
 		server.setHandler(gzip);
 		server.start();
-		try {
-			Thread.sleep(StartServer.UPTIMEMINUTES * 60 * 1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		System.out.println("Stopping server after " + StartServer.UPTIMEMINUTES + " minute(s).");
-		server.stop();
+		server.join();
 	}
 }

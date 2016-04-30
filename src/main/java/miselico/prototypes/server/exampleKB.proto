@@ -1,0 +1,32 @@
+http://example.de/#Antwerp
+base http://example.de/#Aachen
+rem http://example.com/#hasName * 
+add http://example.com/#hasName value:string#Antwerp
+
+http://example.ie/#Galway
+base http://example.com/#City
+add http://example.com/#hasName value:string#Galway
+
+http://example.fi/#Jyvaskyla
+base http://example.ie/#Galway
+rem http://example.com/#hasName value:string#Galway
+add http://example.com/#hasName value:string#Jyv%C3%A4skyl%C3%A4
+
+http://example.org/#Michael
+base proto:P_0
+add http://example.com/#livesIn http://example.fi/#Jyvaskyla http://example.de/#Antwerp
+add http://example.com/#hasName value:string#Michael
+
+http://example.org/#Stefan
+base http://example.org/#Michael
+rem http://example.com/#hasName * 
+rem http://example.com/#livesIn http://example.fi/#Jyvaskyla
+add http://example.com/#livesIn http://example.de/#Aachen
+add http://example.com/#hasName value:string#Stefan
+
+http://example.de/#Aachen
+base http://example.com/#City
+add http://example.com/#hasName value:string#Aachen
+
+http://example.com/#City
+base proto:P_0

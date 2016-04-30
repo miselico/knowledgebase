@@ -12,7 +12,10 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.http.Header;
+import org.apache.http.client.cache.HttpCacheContext;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -28,6 +31,7 @@ import com.google.common.collect.ImmutableSet;
 
 import miselico.prototypes.experiments.MyKnowledgeBase;
 import miselico.prototypes.knowledgebase.ID;
+import miselico.prototypes.knowledgebase.IFPKnowledgeBase;
 import miselico.prototypes.knowledgebase.IKnowledgeBase;
 import miselico.prototypes.knowledgebase.KnowledgeBase;
 import miselico.prototypes.knowledgebase.Prototype;
@@ -42,7 +46,7 @@ import miselico.prototypes.serializers.json.JSONDeserializer;
  * @author michael
  *
  */
-public class RemoteKB implements IKnowledgeBase {
+public class RemoteKB implements IKnowledgeBase, IFPKnowledgeBase, AutoCloseable {
 
 	/**
 	 * When a prototype is requested from a remote source, the remote source
@@ -85,7 +89,7 @@ public class RemoteKB implements IKnowledgeBase {
 	 */
 	public RemoteKB(URI location) {
 		this.datasource = location;
-		CacheConfig cacheConfig = CacheConfig.custom().setMaxCacheEntries(1000).setMaxObjectSize(4096).build();
+		CacheConfig cacheConfig = CacheConfig.custom().setMaxCacheEntries(10000).setMaxObjectSize(4096).build();
 		RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(30000).setSocketTimeout(30000).setCookieSpec(CookieSpecs.IGNORE_COOKIES).setContentCompressionEnabled(RemoteKB.CONTENTCOMPRESSION).build();
 		PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
 		connectionManager.setDefaultMaxPerRoute(1000);
@@ -120,9 +124,33 @@ public class RemoteKB implements IKnowledgeBase {
 		return Optional.ofNullable(this.fetch(uri));
 	}
 
+	@Override
+	public PrototypeWithAlternates computeFixPoint(ID id) {
+		URIBuilder b = new URIBuilder(this.datasource);
+		b.addParameter("p", id.toString());
+		b.addParameter("fp", "true");
+		URI uri;
+		try {
+			uri = b.build();
+		} catch (URISyntaxException e) {
+			throw new Error("This URI cannot be wrong");
+		}
+		PrototypeWithAlternates result = this.fetch(uri);
+		if (result == null) {
+			throw new Error("Prototype with ID " + id + "could not be found.");
+		}
+		return result;
+	}
+
 	private PrototypeWithAlternates fetch(URI uri) {
 		HttpGet httpget = new HttpGet(uri);
-		try (CloseableHttpResponse response = this.cachingClient.execute(httpget)) {
+		HttpCacheContext context = new HttpCacheContext();
+		try (CloseableHttpResponse response = this.cachingClient.execute(httpget, context)) {
+
+			if (response.getStatusLine().getStatusCode() != HttpServletResponse.SC_OK) {
+				Logger.getLogger(RemoteKB.class.getName()).fine("request " + uri + "failed, returning empty prototype");
+				return null;
+			}
 			// parse link headers to search for alternates
 			Set<URI> alternates = new HashSet<>();
 			for (Header linkHeader : response.getHeaders("Link")) {
@@ -143,6 +171,14 @@ public class RemoteKB implements IKnowledgeBase {
 	}
 
 	private static final LimitedLinkHeaderParser linkHeaderParser = new LimitedLinkHeaderParser();
+
+	/**
+	 * Close this remote KB, releasing all resources related to the http Client.
+	 */
+	@Override
+	public void close() throws IOException {
+		this.cachingClient.close();
+	}
 
 	public static void main(String[] args) throws URISyntaxException, InterruptedException {
 		KnowledgeBase base = MyKnowledgeBase.getSomebase();

@@ -1,5 +1,8 @@
 package miselico.prototypes.knowledgebase;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.apache.abdera.i18n.iri.IRI;
 import org.apache.abdera.i18n.iri.IRISyntaxException;
 
@@ -26,7 +29,19 @@ public class Property {
 	 *             if the IRI is not absolute
 	 */
 	public static Property of(String value) {
-		return new Property(new IRI(value));
+
+		// creating a URI type is about three times faster as a IRI type, so we
+		// try that first
+		// This might be implementation dependent.
+
+		String uriString;
+		try {
+			URI uri = new URI(value);
+			uriString = uri.toString();
+		} catch (URISyntaxException e) {
+			uriString = new IRI(value).toString();
+		}
+		return new Property(uriString);
 	}
 
 	/**
@@ -42,6 +57,36 @@ public class Property {
 		Preconditions.checkNotNull(iri);
 		Preconditions.checkArgument(iri.isAbsolute(), "Only absolute URIs are valid properties");
 		this.value = iri.toString();
+	}
+
+	/**
+	 * Create a property for the given URI
+	 * 
+	 * @param uri
+	 * @throws NullPointerException
+	 *             if uri is null
+	 * @throws IllegalArgumentException
+	 *             if the IRI is not absolute
+	 */
+	public Property(URI uri) {
+		Preconditions.checkNotNull(uri);
+		Preconditions.checkArgument(uri.isAbsolute(), "Only absolute IRIs are valid properties");
+		this.value = uri.toString();
+	}
+
+	/**
+	 * Constructs an Property from a String. This is private because the String
+	 * value is not checked.
+	 * 
+	 * @param uri
+	 * @throws NullPointerException
+	 *             if uri is null
+	 * @throws IllegalArgumentException
+	 *             if the uri is not absolute
+	 */
+	private Property(String uriString) {
+		Preconditions.checkNotNull(uriString);
+		this.value = uriString;
 	}
 
 	/**

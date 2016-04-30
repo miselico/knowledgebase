@@ -23,7 +23,7 @@ public final class StandaloneExperiments {
 
 	public static void main(String[] args) {
 		for (int n : new int[] { 19, 20, 21 }) {
-			StandaloneExperiments.computeStats(Datasets.idealCase(n));
+			StandaloneExperiments.computeStats(Datasets.baseline(n));
 			System.gc();
 		}
 		for (int blocks : new int[] { 10, 20, 30 }) {
